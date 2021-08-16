@@ -1,5 +1,5 @@
 # Here we download Go image & name it as builder
-FROM golang:1.16 AS builder
+FROM golang:1.16-alpine AS builder
 
 # We set our workdir
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN go build -o ptrun-server ./cmd/ptrun-server/main.go
 
 # -----------------------------------------------------------------------------
 
-# Here we install latest alpine image, that runs everything
+# Here we install latest Alpine image, that runs everything
 FROM alpine:latest
 
 # I guess, that we install certificates here...
@@ -30,4 +30,4 @@ COPY --from=builder /app/ptrun-server ./ptrun-server
 EXPOSE 8080
 
 # Here we run PTRun server
-RUN [ "./ptrun-server"] 
+CMD [ "./ptrun-server" ]
