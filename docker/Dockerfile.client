@@ -1,0 +1,21 @@
+FROM node:14 AS build
+
+WORKDIR /tmp/build
+
+ENV PROTOC_VERSION=3.17.3
+RUN curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip && \
+    unzip -o protoc-${PROTOC_VERSION}-linux-x86_64.zip -d ./proto && \
+    chmod 755 -R ./proto/bin && \
+    cp -R ./proto/bin/* /usr/bin/ && \
+    cp -R ./proto/include/* /usr/include/
+
+COPY client/package*.json ./
+RUN npm ci
+
+COPY client/ ./
+COPY messages/ ./messages/
+RUN protoc --proto_path=messages --js_out=import_style=commonjs,binary:./src messages/*.proto && \
+    npm run build
+
+FROM nginx:alpine
+COPY --from=build /tmp/build/dist/ /usr/share/nginx/html/
