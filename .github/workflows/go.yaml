@@ -22,16 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: ls
-        run: ls ./server/cmd/ptrun-server/
-      - name: Change directory
-        run: cd server/
       - name: Get dependencies
+        working-directory: ./server
         run: go mod download
       - name: Go get
+        working-directory: ./server
         run: go get .
       - name: Run Unit tests
-        run: go test ./server/cmd/ptrun-server/
+        working-directory: ./server/cmd/ptrun-server/
+        run: go test .
   builddocker:
     name: Docker build
     needs: test
