@@ -1,0 +1,33 @@
+name: Go Tests
+on:
+  push:
+  pull_request:
+
+jobs:
+  testbuild:
+    name: Go Test Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Change directory
+        run: cd server
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1' # The Go version to download (if necessary) and use.
+      - name: Get current Go version
+        run: go version
+      - name: Build app
+        run: go build -o ptrun-server ./cmd/ptrun-server/main.go
+  test:
+    needs: testbuild
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Unit tests
+        run: go test ./cmd/ptrun-server/
+  builddocker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Docker version
+        run: docker --version
+
