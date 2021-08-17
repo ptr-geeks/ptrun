@@ -24,8 +24,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: ls
         run: ls ./server/cmd/ptrun-server/
+      - name: Change directory
+        run: cd server/
       - name: Get dependencies
-        run: go mod download ./server/
+        run: go mod download
+      - name: Go get
+        run: go get .
       - name: Run Unit tests
         run: go test ./server/cmd/ptrun-server/
   builddocker:
