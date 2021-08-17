@@ -25,9 +25,9 @@ jobs:
       - name: Get dependencies
         working-directory: ./server
         run: go mod download
-      - name: Go get
-        working-directory: ./server
-        run: go get .
+      #- name: Go get
+      #  working-directory: ./server
+      #  run: go get .
       - name: Run Unit tests
         working-directory: ./server/cmd/ptrun-server/
         run: go test .
