@@ -29,6 +29,9 @@ jobs:
       - name: Get Docker version
         run: docker --version
       - name: Build Docker image
-        working-directory: ./server/
-        run: docker build -t ptrun-server .
+        uses: docker/build-push-action@v2
+        with:
+          file: "./docker/Dockerfile.server"
+          tags: ptrun-server
+          push: false
 

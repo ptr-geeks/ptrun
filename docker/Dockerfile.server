@@ -1,0 +1,14 @@
+FROM golang:1.16-alpine AS builder
+
+WORKDIR /app
+COPY ../server .
+
+RUN go build -o ptrun-server ./cmd/ptrun-server/main.go
+
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /app/ptrun-server ./ptrun-server
+
+EXPOSE 8080
+CMD [ "./ptrun-server" ]
