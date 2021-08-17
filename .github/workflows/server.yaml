@@ -28,5 +28,6 @@ jobs:
       - name: Get Docker version
         run: docker --version
       - name: Build Docker image
+        working-directory: ./server/
         run: docker build -t ptrun-server .
 
