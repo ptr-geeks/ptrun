@@ -7,7 +7,7 @@ WORKDIR /app
 # This is ultra necessary command...
 COPY . .
 
-# RUN echo $(ls)
+RUN echo $(ls)
 
 # Let's build it :tada:
 RUN go build -o ptrun-server ./server/cmd/ptrun-server/main.go
