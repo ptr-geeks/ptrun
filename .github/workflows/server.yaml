@@ -16,23 +16,6 @@ jobs:
         run: go version
       - name: Build app
         run: go build -o ptrun-server ./server/cmd/ptrun-server/main.go
-  """
-  test:
-    name: Unit tests
-    needs: testbuild
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Get dependencies
-        working-directory: ./server
-        run: go mod download
-      #- name: Go get
-      #  working-directory: ./server
-      #  run: go get .
-      - name: Run Unit tests
-        working-directory: ./server/cmd/ptrun-server/
-        run: go test .
-        """
   builddocker:
     name: Docker build
     needs: test
