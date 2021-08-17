@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
-import logoImg from './assets/logo.png';
+import { Terrain } from './objects/terrain';
+
+import dirtTileImg from './assets/dirtTile.jpg';
+import backgroundImg from './assets/oblakiBG.jpg'
 
 class Game extends Phaser.Scene {
     constructor() {
@@ -7,20 +10,13 @@ class Game extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('logo', logoImg);
+        this.load.image('dirtTile', dirtTileImg);
+        this.load.image('background', backgroundImg);
     }
 
     create() {
-        const logo = this.add.image(400, 150, 'logo');
-
-        this.tweens.add({
-            targets: logo,
-            y: 450,
-            duration: 2000,
-            ease: "Power2",
-            yoyo: true,
-            loop: -1
-        });
+        this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(2.7);
+        this.add.existing(new Terrain(this, 0, 0, 'dirtTile'));
     }
 }
 
