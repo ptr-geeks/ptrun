@@ -16,6 +16,7 @@ jobs:
         run: go version
       - name: Build app
         run: go build -o ptrun-server ./server/cmd/ptrun-server/main.go
+  """
   test:
     name: Unit tests
     needs: testbuild
@@ -31,6 +32,7 @@ jobs:
       - name: Run Unit tests
         working-directory: ./server/cmd/ptrun-server/
         run: go test .
+        """
   builddocker:
     name: Docker build
     needs: test
