@@ -32,6 +32,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "google-protobuf": "^3.17.3",
     "phaser": "^3.55.2"
   }
 }
