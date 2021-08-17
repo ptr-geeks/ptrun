@@ -20,6 +20,8 @@ jobs:
     needs: testbuild
     runs-on: ubuntu-latest
     steps:
+      - name: ls
+        run: ls
       - name: Run Unit tests
         run: go test ./server/cmd/ptrun-server/
   builddocker:
