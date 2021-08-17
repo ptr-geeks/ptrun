@@ -27,6 +27,9 @@ jobs:
     steps:
       - name: Get Docker version
         run: docker --version
+      - name: ls
+        working-directory: ./server/
+        run: echo $(ls)
       - name: Build Docker image
         working-directory: ./server/
         run: docker build -t ptrun-server .
