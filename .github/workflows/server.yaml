@@ -18,7 +18,7 @@ jobs:
         run: go build -o ptrun-server ./server/cmd/ptrun-server/main.go
   builddocker:
     name: Docker build
-    needs: test
+    needs: testbuild
     runs-on: ubuntu-latest
     steps:
       - name: Get Docker version
