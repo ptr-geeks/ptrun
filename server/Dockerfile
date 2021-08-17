@@ -10,7 +10,7 @@ COPY . .
 # RUN echo $(ls)
 
 # Let's build it :tada:
-RUN go build -o ptrun-server ./cmd/ptrun-server/main.go
+RUN go build -o ptrun-server ./server/cmd/ptrun-server/main.go
 
 # -----------------------------------------------------------------------------
 
