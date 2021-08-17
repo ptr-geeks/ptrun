@@ -21,6 +21,7 @@ jobs:
     needs: testbuild
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: ls
         run: ls ./server/cmd/ptrun-server/
       - name: Run Unit tests
