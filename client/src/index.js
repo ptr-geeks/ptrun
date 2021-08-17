@@ -17,6 +17,7 @@ class Game extends Phaser.Scene {
     create() {
         this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(2.7);
         this.add.existing(new Terrain(this, 0, 0, 'dirtTile'));
+        this.cameras.main.startFollow(player, false, 1, 0);
     }
 }
 
@@ -28,6 +29,13 @@ const config = {
     scale: {
         autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
         mode: Phaser.Scale.NONE, 
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 300 },
+            debug: false
+        }
     },
     scene: Game,
 };

@@ -23,7 +23,7 @@ export class Terrain extends Phaser.GameObjects.Sprite {
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
                 if (grid[i][j] == 1) {
-                    var tile = scene.add.image(0 + j*tileSize, 0 + i*tileSize, dirtTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
+                    var tile = scene.physics.add.staticImage(0 + j*tileSize, 0 + i*tileSize, dirtTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
                 }
             }
         }
