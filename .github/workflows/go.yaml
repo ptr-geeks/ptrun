@@ -17,14 +17,16 @@ jobs:
       - name: Build app
         run: go build -o ptrun-server ./server/cmd/ptrun-server/main.go
   test:
+    name: Unit tests
     needs: testbuild
     runs-on: ubuntu-latest
     steps:
       - name: ls
-        run: ls
+        run: ls ./server/cmd/ptrun-server/
       - name: Run Unit tests
         run: go test ./server/cmd/ptrun-server/
   builddocker:
+    name: Docker build
     needs: test
     runs-on: ubuntu-latest
     steps:
