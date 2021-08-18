@@ -46,29 +46,50 @@ func main() {
 
 	mux := goji.NewMux()
 
-	// Tale funkcija mora imeti parameter ID, ki se returna pri /server/new
 	mux.HandleFunc(pat.Get("/ws"), func(w http.ResponseWriter, r *http.Request) {
+		// Here get Server ID & Game ID
 		serverid, _ := strconv.Atoi(r.URL.Query()["serverid"][0])
 		gameid, _ := strconv.Atoi(r.URL.Query()["gameid"][0])
+
+		// Here we get the Server from all available games
 		game := games.GetGameFromID(gameid)
 		serv := game.GetServerFromID(serverid)
+
+		// And, we connect to it
 		serv.Connect(w, r)
 	})
 	mux.HandleFunc(pat.Get("/server/new"), func(w http.ResponseWriter, r *http.Request) {
+		// Here we get Game ID from parameters (/server/new?gameid=gameid)
 		gameid, _ := strconv.Atoi(r.URL.Query()["gameid"][0])
+
+		// Here we get Game interface from all available games
 		game := games.GetGameFromID(gameid)
+
+		// We generate a new server for our client & run it
 		server = ws.NewServer(logger, gameid)
 		go server.Run(game)
+
+		// We add this generated server to our server list in our game
 		game.AddServer(server)
+
+		// Some tests....
 		fmt.Println(game.GetAllClients())
 		fmt.Println(server.GetID())
+
+		// Here we write back status code 200 & server ID, so that client can join
 		w.WriteHeader(200)
 		w.Write([]byte(strconv.Itoa(server.GetID())))
 	})
 	mux.HandleFunc(pat.Get("/game/new"), func(w http.ResponseWriter, r *http.Request) {
+		// Here we generate a new Game & add it to games list
 		game := ws.NewGame()
 		games.AddGame(game)
+
+		// Here we just write back the ID of game, so that client can generate a new
+		// Server & afterwards join to it
 		w.Write([]byte(strconv.Itoa(game.GetID())))
+
+		// Just some tests...
 		fmt.Println(games.GetGames())
 	})
 
