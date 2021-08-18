@@ -30,12 +30,12 @@ func main() {
 		panic(err)
 	}
 
-	servers := ws.NewServersList()
-
 	sugared := logger.Sugar()
 
-	server = ws.NewServer(logger)
-	go server.Run()
+	games := ws.NewGamesList()
+
+	//server = ws.NewServer(logger)
+	//go server.Run()
 
 	// TODO: We should allow some overrides by passing parameters to our executable
 	// Example: ./ptr-server --port 8080 --path "/ws"
@@ -48,17 +48,28 @@ func main() {
 
 	// Tale funkcija mora imeti parameter ID, ki se returna pri /server/new
 	mux.HandleFunc(pat.Get("/ws"), func(w http.ResponseWriter, r *http.Request) {
-		intid, _ := strconv.Atoi(r.URL.Query()["id"][0])
-		serv := servers.GetServerByID(intid)
+		serverid, _ := strconv.Atoi(r.URL.Query()["serverid"][0])
+		gameid, _ := strconv.Atoi(r.URL.Query()["gameid"][0])
+		game := games.GetGameFromID(gameid)
+		serv := game.GetServerFromID(serverid)
 		serv.Connect(w, r)
 	})
 	mux.HandleFunc(pat.Get("/server/new"), func(w http.ResponseWriter, r *http.Request) {
-		server = ws.NewServer(logger)
-		servers.AddServer(server)
-		fmt.Println(servers.GetAll())
+		gameid, _ := strconv.Atoi(r.URL.Query()["gameid"][0])
+		game := games.GetGameFromID(gameid)
+		server = ws.NewServer(logger, gameid)
+		go server.Run(game)
+		game.AddServer(server)
+		fmt.Println(game.GetAllClients())
 		fmt.Println(server.GetID())
 		w.WriteHeader(200)
 		w.Write([]byte(strconv.Itoa(server.GetID())))
+	})
+	mux.HandleFunc(pat.Get("/game/new"), func(w http.ResponseWriter, r *http.Request) {
+		game := ws.NewGame()
+		games.AddGame(game)
+		w.Write([]byte(strconv.Itoa(game.GetID())))
+		fmt.Println(games.GetGames())
 	})
 
 	srv := &http.Server{

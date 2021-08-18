@@ -6,7 +6,7 @@ import (
 )
 
 type Server interface {
-	Run()
+	Run(game Game)
 
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
@@ -29,4 +29,19 @@ type Servers interface {
 	GetServerByID(ServerID int) Server
 	AddServer(server Server)
 	GetAll() []Server
+}
+
+type Game interface {
+	GetAllClients() []Client
+	GetID() int
+	NotifyAllClients()
+	AddServer(server Server)
+	AddClient(client Client)
+	GetServerFromID(id int) Server
+}
+
+type Games interface {
+	GetGameFromID(id int) Game
+	AddGame(game Game)
+	GetGames() []Game
 }

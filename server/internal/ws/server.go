@@ -28,6 +28,7 @@ type serverImpl struct {
 	// Channels so we can process request async
 	connect chan connectMessage
 	id      int
+	gameId  int
 }
 
 type connectMessage struct {
@@ -35,7 +36,7 @@ type connectMessage struct {
 	done chan Client
 }
 
-func NewServer(logger *zap.Logger) Server {
+func NewServer(logger *zap.Logger, gameId int) Server {
 	// Here we generate a new seed, so that it's more secure
 	rand.Seed(time.Now().UnixNano())
 
@@ -45,6 +46,7 @@ func NewServer(logger *zap.Logger) Server {
 		// Make buffered channels
 		connect: make(chan connectMessage, consts.ChanBufferSize),
 		id:      rand.Int(),
+		gameId:  gameId,
 	}
 }
 
@@ -52,7 +54,7 @@ func (s *serverImpl) GetID() int {
 	return s.id
 }
 
-func (s *serverImpl) Run() {
+func (s *serverImpl) Run(game Game) {
 	s.logger.Debug("server started and listening for events")
 
 	for {
@@ -60,6 +62,7 @@ func (s *serverImpl) Run() {
 		case connect := <-s.connect:
 			s.logger.Infow("new connection", "remoteAddr", connect.conn.RemoteAddr())
 			client := NewClient(connect.conn, s, s.logger.Desugar())
+			game.AddClient(client)
 
 			connect.done <- client
 		}
