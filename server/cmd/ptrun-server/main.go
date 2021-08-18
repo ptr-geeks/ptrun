@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,10 +22,19 @@ var (
 )
 
 func main() {
-	// Switch with zap.NewProduction() when needed
-	// or even better, add a flag to switch this as needed.
-	// Example: ./ptrun-server --debug
-	logger, err := zap.NewDevelopment()
+	// Define flags
+	debug := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
+
+	var logger *zap.Logger
+	var err error
+	if *debug == true {
+		logger, err = zap.NewDevelopment()
+		fmt.Println("Started new Development logger")
+	} else {
+		logger, err = zap.NewProduction()
+		fmt.Println("Started new Production logger")
+	}
 	if err != nil {
 		panic(err)
 	}
