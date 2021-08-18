@@ -24,11 +24,11 @@ class Game extends Phaser.Scene {
 
     create() {
         this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(2.7);
-        this.add.existing(new Terrain(this, 0, 0, 'dirtTile'));
         
-        this.player = new Player(this, 300, 300, 'player');
+        this.player = new Player(this, 150, 650, 'player');
         this.add.existing(this.player);
-        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
+        this.cameras.main.startFollow(this.player, false, 1, 1, -550, 200);
+        this.add.existing(new Terrain(this, 0, 0, 'dirtTile', this.player));
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
@@ -63,19 +63,13 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false
+            gravity: { y: 3000 },
+            debug: true
         }
     },
     scale: {
         autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
         mode: Phaser.Scale.NONE, 
-    },
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 300 },
-            debug: false
-        }
     },
     scene: Game,
 };

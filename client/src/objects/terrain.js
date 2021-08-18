@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 export class Terrain extends Phaser.GameObjects.Sprite {
-    constructor(scene, x, y, dirtTile) {
+    constructor(scene, x, y, dirtTile, player) {
         super(scene, x, y);
 
         var tileSize = 70;
@@ -23,7 +23,10 @@ export class Terrain extends Phaser.GameObjects.Sprite {
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
                 if (grid[i][j] == 1) {
-                    var tile = scene.physics.add.staticImage(0 + j*tileSize, 0 + i*tileSize, dirtTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
+                    var tile = scene.physics.add.sprite(j*tileSize, i*tileSize, dirtTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
+                    var collider = scene.physics.add.collider(player, tile);
+                    tile.setImmovable(true);
+                    tile.body.allowGravity = false;
                 }
             }
         }
