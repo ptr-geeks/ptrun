@@ -3,6 +3,7 @@ package ws
 import (
 	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -35,6 +36,9 @@ type connectMessage struct {
 }
 
 func NewServer(logger *zap.Logger) Server {
+	// Here we generate a new seed, so that it's more secure
+	rand.Seed(time.Now().UnixNano())
+
 	return &serverImpl{
 		logger: logger.Sugar(),
 

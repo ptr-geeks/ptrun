@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -44,14 +45,20 @@ func main() {
 		"path", "/ws")
 
 	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get("/server/connect/:id"), func(w http.ResponseWriter, r *http.Request) {
-		server.Connect(w, r)
+
+	// Tale funkcija mora imeti parameter ID, ki se returna pri /server/new
+	mux.HandleFunc(pat.Get("/ws"), func(w http.ResponseWriter, r *http.Request) {
+		intid, _ := strconv.Atoi(r.URL.Query()["id"][0])
+		serv := servers.GetServerByID(intid)
+		serv.Connect(w, r)
 	})
 	mux.HandleFunc(pat.Get("/server/new"), func(w http.ResponseWriter, r *http.Request) {
 		server = ws.NewServer(logger)
 		servers.AddServer(server)
 		fmt.Println(servers.GetAll())
+		fmt.Println(server.GetID())
 		w.WriteHeader(200)
+		w.Write([]byte(strconv.Itoa(server.GetID())))
 	})
 
 	srv := &http.Server{
