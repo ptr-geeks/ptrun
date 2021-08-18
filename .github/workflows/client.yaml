@@ -70,17 +70,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Login to Docker
         uses: docker/login-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: "ghcr.io"
+      - name: Get Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/${{ github.repository }}/client
+          flavor: latest=${{ github.ref == 'refs/heads/master' }}
+          tags: type=ref,event=branch
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
           file: "./docker/Dockerfile.client"
-          tags: ghcr.io/${{ github.repository }}/client:latest
-          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' }}
