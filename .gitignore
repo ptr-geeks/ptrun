@@ -1,3 +1,7 @@
+# Project
+client/src/messages_pb.js
+server/internal/messages/messages.pb.go
+
 # System and IDE files
 .vscode/
 Thumbs.db

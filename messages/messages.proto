@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "./server/internal/messages";
+
+message Join {
+    string username = 1;
+    optional bool success = 2;
+}
+
+message Move {
+    float x = 1;
+    float y = 2;
+    float dx = 3;
+    float dy = 4;
+}
+
+message Message {
+    optional string server = 1;
+    optional int32 player_id = 2;
+    oneof data {
+        Join join = 4;
+        Move move = 5;
+    }
+}
