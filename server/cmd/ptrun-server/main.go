@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -28,6 +29,8 @@ func main() {
 		panic(err)
 	}
 
+	servers := ws.NewServersList()
+
 	sugared := logger.Sugar()
 
 	server = ws.NewServer(logger)
@@ -41,8 +44,14 @@ func main() {
 		"path", "/ws")
 
 	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get("/ws"), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pat.Get("/server/connect/:id"), func(w http.ResponseWriter, r *http.Request) {
 		server.Connect(w, r)
+	})
+	mux.HandleFunc(pat.Get("/server/new"), func(w http.ResponseWriter, r *http.Request) {
+		server = ws.NewServer(logger)
+		servers.AddServer(server)
+		fmt.Println(servers.GetAll())
+		w.WriteHeader(200)
 	})
 
 	srv := &http.Server{

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"math/rand"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -25,6 +26,7 @@ type serverImpl struct {
 
 	// Channels so we can process request async
 	connect chan connectMessage
+	id      int
 }
 
 type connectMessage struct {
@@ -38,7 +40,12 @@ func NewServer(logger *zap.Logger) Server {
 
 		// Make buffered channels
 		connect: make(chan connectMessage, consts.ChanBufferSize),
+		id:      rand.Int(),
 	}
+}
+
+func (s *serverImpl) GetID() int {
+	return s.id
 }
 
 func (s *serverImpl) Run() {

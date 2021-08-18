@@ -10,6 +10,8 @@ type Server interface {
 
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
+
+	GetID() int
 }
 
 type Client interface {
@@ -21,4 +23,10 @@ type Client interface {
 
 	ReadPump()
 	SendPump()
+}
+
+type Servers interface {
+	GetServerByID(ServerID int) Server
+	AddServer(server Server)
+	GetAll() []Server
 }
