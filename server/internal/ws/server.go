@@ -22,6 +22,7 @@ var (
 
 type serverImpl struct {
 	logger *zap.SugaredLogger
+	clients map[int32]*Client
 
 	// Channels so we can process request async
 	connect chan connectMessage
