@@ -4,11 +4,22 @@ on:
   - pull_request
 
 jobs:
-  build:
-    name: Server build
+  ci:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Change directory
+        run: cd ./server/
+      - name: Lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: latest
+  build:
+    name: Server build
+    runs-on: ubuntu-latest
+    needs: ci
+    steps:
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.15'
