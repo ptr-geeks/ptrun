@@ -3,8 +3,13 @@ FROM golang:1.16-alpine AS builder
 WORKDIR /app
 COPY . .
 
+WORKDIR /app/server
 RUN go mod download
-RUN protoc --proto_path=./messages --go_out=./ messages/*.proto
+
+RUN apk add --no-cache protoc
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+RUN protoc --proto_path=../messages --go_out=../ ..messages/*.proto
+
 RUN go build -o ptrun-server ./server/cmd/ptrun-server/main.go
 
 FROM alpine:latest
