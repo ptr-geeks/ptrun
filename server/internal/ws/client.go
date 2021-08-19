@@ -91,7 +91,7 @@ func (c *clientImpl) ReadPump() {
 		message := messages.Message{}
 		proto.Unmarshal(msg, &message)
 
-		c.logger.Debugw("recived messege", "id", c.id, "remoteAddr", c.addr)
+		c.logger.Debugw("received messege", "id", c.id, "remoteAddr", c.addr)
 
 		// TODO: We will need to do something with this
 		fmt.Println(msg)
