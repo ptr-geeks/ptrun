@@ -7,6 +7,7 @@ import (
 	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
+//Server starts the Run connect and disconnect methods
 type Server interface {
 	Run()
 
@@ -14,6 +15,7 @@ type Server interface {
 	Disconnect(client Client)
 }
 
+//Client contains all the methods we need for recognising and working with the Client
 type Client interface {
 	GetID() int32
 	GetRemoteAddr() net.Addr

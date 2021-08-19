@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/spf13/cobra"
 	"net/http"
 	"os"
 	"os/signal"
@@ -23,6 +25,13 @@ var (
 	server ws.Server
 )
 
+type ServerConfig struct {
+	Debug bool
+	Host  string
+	Port  string
+	Path  string
+}
+
 var (
 	state = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "ptrun_state",
@@ -31,6 +40,43 @@ var (
 )
 
 func main() {
+	config := ServerConfig{}
+
+	command := &cobra.Command{
+		Use:   "ptrun-server",
+		Short: "Game server for PTRun",
+		Run: func(cmd *cobra.Command, args []string) {
+			run(&config)
+		},
+	}
+
+	command.Flags().BoolVar(&config.Debug, "debug", false, "enable debug mode")
+	command.Flags().StringVar(&config.Host, "host", "0.0.0.0", "set server host")
+	command.Flags().StringVar(&config.Port, "port", "8080", "set server port")
+	command.Flags().StringVar(&config.Path, "path", "/ws", "set server WS path")
+
+	if err := command.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run(config *ServerConfig) {
+	var logger *zap.Logger
+	var err error
+
+	if config.Debug {
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	sugared := logger.Sugar()
+
 	state.Set(0)
 
 	mux := goji.NewMux()
@@ -42,29 +88,19 @@ func main() {
 		prometheus.ServeHTTP(w, r)
 	})
 
-	// Switch with zap.NewProduction() when needed
-	// or even better, add a flag to switch this as needed.
-	// Example: ./ptrun-server --debug
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		panic(err)
-	}
-
-	sugared := logger.Sugar()
-
 	server = ws.NewServer(logger)
 	go server.Run()
 
 	// TODO: We should allow some overrides by passing parameters to our executable
 	// Example: ./ptr-server --port 8080 --path "/ws"
 	sugared.Infow("starting websocket endpoint",
-		"addr", "0.0.0.0",
-		"port", 8080,
-		"path", "/ws")
+		"host", config.Host,
+		"port", config.Port,
+		"path", config.Path)
 
 	srv := &http.Server{
 		Handler: mux,
-		Addr:    "0.0.0.0:8080",
+		Addr:    fmt.Sprintf("%s:%s", config.Host, config.Port),
 		// These should probably be moved under internal/const
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
