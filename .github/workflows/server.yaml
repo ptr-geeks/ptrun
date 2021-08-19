@@ -20,7 +20,7 @@ jobs:
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
       - name: Install Go protoc
-        run: go install google.golang.org/protobuf/cmd/protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
       - name: Generate protobuf
         run: protoc --proto_path=./messages --go_out=./ messages/*.proto
       - name: Build app
