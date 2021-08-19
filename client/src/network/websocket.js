@@ -11,14 +11,26 @@ export class Websocket {
             var join = new messages.Join();
             message.setJoin(join);
             join.setUsername('spela in lara');
-            console.log('username:', join.getUsername);
             this.sendMessage(message);
         });
 
+
+
         // Listen for messages
         this.socket.addEventListener('message', (event) => {
-            var message2 = messages.Message().deserializeBinary(event.data);
-            console.log(message2);
+            var message = messages.Message().deserializeBinary(event.data);
+            switch (message.getDataCase()) {
+                case 4:
+                    this.joinRecieve(message.getPlayerId());
+                    break;
+                case 5:
+                    const move = message.getMove();
+                    this.playerMoveRecieve(message.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
+                    break;
+            
+                default:
+                    break;
+            }
             console.log('Message from server ', event.data);
         });
 
@@ -27,5 +39,26 @@ export class Websocket {
     sendMessage(message) {
         var bytes = message.serializeBinary();
         this.socket.send(bytes);
+    }
+
+    playerMoveSend(x, y, dx, dy) {
+        var message = new messages.Message();
+        var move = new messages.Move();
+        message.setMove(move);
+        move.setX(x);
+        move.setY(y);
+        move.setDx(dx);
+        move.setDy(dy);
+        this.sendMessage(message);
+    }
+
+    playerMoveRecieve(player_id, x, y, dx, dy) {
+        console.log(player_id, x, y);
+
+    }
+
+    joinRecieve(player_id) {
+        console.log(player_id);
+
     }
 }
