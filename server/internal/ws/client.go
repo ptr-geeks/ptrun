@@ -11,6 +11,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/ptr-geeks/ptrun/server/internal/events"
 	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
@@ -94,13 +95,13 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("exiting client read pump", "id", c.id, "remoteAddr", c.addr)
 			break
 		}
-
+		//tu je ta message bus
 		// Everything seems fine, just unmarshal & forward
 		c.logger.Debugw("recieved message", "id", c.id, "remoteAdr", c.addr)
 		message := &messages.Message{}
 		proto.Unmarshal(msg, message)
 
-		c.server.Broadcast(c.id, message)
+		events.Publish("server.broadcast", c.id, message)
 	}
 }
 

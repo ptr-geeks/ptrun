@@ -24,6 +24,7 @@ func Unsubscribe(topic string, handler interface{}) error {
 func SubscribeAsync(topic string, fn interface{}, transactional bool) error {
 	return bus.SubscribeAsync(topic, fn, transactional)
 }
+
 func WaitAsync() {
 	bus.WaitAsync()
 }
