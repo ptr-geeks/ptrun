@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ptr-geeks/ptrun/server/internal/consts"
+	"github.com/ptr-geeks/ptrun/server/internal/ws"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
-
-	"github.com/ptr-geeks/ptrun/server/internal/ws"
 )
 
 var (
@@ -46,12 +46,11 @@ func main() {
 	})
 
 	srv := &http.Server{
-		Handler: mux,
-		Addr:    "0.0.0.0:8080",
-		// These should probably be moved under internal/const
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-		IdleTimeout:  15 * time.Second,
+		Handler:      mux,
+		Addr:         "0.0.0.0:8080",
+		WriteTimeout: consts.HttpWriteTimeout,
+		ReadTimeout:  consts.HttpReadTimeout,
+		IdleTimeout:  consts.HttpIdleTimeout,
 	}
 
 	done := make(chan os.Signal, 1)
