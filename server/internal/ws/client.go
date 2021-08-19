@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	writeTimeout = 10 * time.Second
+	WebSocketwriteTimeout = 10 * time.Second
 )
 
 type clientImpl struct {
@@ -111,7 +111,7 @@ func (c *clientImpl) SendPump() {
 
 	for message := range c.send {
 		// So we don't wait for too long before we send
-		c.conn.SetWriteDeadline(time.Now().Add(writeTimeout))
+		c.conn.SetWriteDeadline(time.Now().Add(WebSocketwriteTimeout))
 
 		writer, err := c.conn.NextWriter(websocket.BinaryMessage)
 		if err != nil {

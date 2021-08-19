@@ -48,9 +48,9 @@ func main() {
 	srv := &http.Server{
 		Handler:      mux,
 		Addr:         "0.0.0.0:8080",
-		WriteTimeout: consts.WriteTimeout,
-		ReadTimeout:  consts.ReadTimeout,
-		IdleTimeout:  consts.IdleTimeout,
+		WriteTimeout: consts.HttpWriteTimeout,
+		ReadTimeout:  consts.HttpReadTimeout,
+		IdleTimeout:  consts.HttpIdleTimeout,
 	}
 
 	done := make(chan os.Signal, 1)

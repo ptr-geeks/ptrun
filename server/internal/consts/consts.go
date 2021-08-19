@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	ChanBufferSize = 200
-	WriteTimeout   = 15 * time.Second
-	ReadTimeout    = 15 * time.Second
-	IdleTimeout    = 15 * time.Second
+	ChanBufferSize   = 200
+	HttpWriteTimeout = 15 * time.Second
+	HttpReadTimeout  = 15 * time.Second
+	HttpIdleTimeout  = 15 * time.Second
 )
