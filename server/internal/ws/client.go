@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"fmt"
 	"math/rand"
 	"net"
 	"time"
@@ -12,6 +11,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/ptr-geeks/ptrun/server/internal/events"
 	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
@@ -27,8 +27,12 @@ type clientImpl struct {
 	logger *zap.SugaredLogger
 
 	send chan *messages.Message
+
+	server Server
 }
 
+// NewClient creates new instance of client with randomly generated id and remote adres, it also connects him to server with websocket
+//and allows server to comunicate with him
 func NewClient(conn *websocket.Conn, serv Server, logger *zap.Logger) Client {
 	return &clientImpl{
 		// Just randomly generate
@@ -36,25 +40,30 @@ func NewClient(conn *websocket.Conn, serv Server, logger *zap.Logger) Client {
 		addr:   conn.RemoteAddr(),
 		conn:   conn,
 		logger: logger.Sugar(),
+		server: serv,
 
 		send: make(chan *messages.Message),
 	}
 }
 
+//function GetID returns id of the client
 func (c *clientImpl) GetID() int32 {
 	return c.id
 }
 
+//retruns remote addres of the client
 func (c *clientImpl) GetRemoteAddr() net.Addr {
 	return c.addr
 }
 
+//closes the client
 func (c *clientImpl) Close() {
 	close(c.send)
 	c.conn.Close()
 	// TODO: Server needs to be aware that we disconnected as well
 }
 
+//Send sends messages
 func (c *clientImpl) Send(msg *messages.Message) {
 	c.send <- msg
 }
@@ -67,12 +76,12 @@ func isUnexpectedClose(err error) bool {
 		websocket.CloseGoingAway)
 }
 
-// We will receive messages here and forward everything to server
+//reads the messages sended from the client and returns error if needed
 func (c *clientImpl) ReadPump() {
 	c.logger.Debugw("started read pump for client",
 		"id", c.id, "remoteAddr", c.addr)
 
-	defer close(c.send)
+	defer c.Close() //
 	for {
 		_, msg, err := c.conn.ReadMessage()
 		if err != nil {
@@ -86,23 +95,21 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("exiting client read pump", "id", c.id, "remoteAddr", c.addr)
 			break
 		}
+		//tu je ta message bus
+		// Everything seems fine, just unmarshal & forward
+		c.logger.Debugw("recieved message", "id", c.id, "remoteAdr", c.addr)
+		message := &messages.Message{}
+		proto.Unmarshal(msg, message)
 
-		// Everything seems fine, just forward
-		message := messages.Message{}
-		proto.Unmarshal(msg, &message)
-
-		c.logger.Debugw("received messege", "id", c.id, "remoteAddr", c.addr)
-
-		// TODO: We will need to do something with this
-		fmt.Println(msg)
+		events.Publish("server.broadcast", c.id, message)
 	}
 }
 
+// SendPump sends messages to client and checks if there is an error and returns it
 func (c *clientImpl) SendPump() {
 	c.logger.Debugw("started send pump for client",
 		"id", c.id, "remoteAddr", c.addr)
 
-	defer c.conn.Close()
 	for message := range c.send {
 		// So we don't wait for too long before we send
 		c.conn.SetWriteDeadline(time.Now().Add(writeTimeout))
