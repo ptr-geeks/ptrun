@@ -12,7 +12,8 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 WORKDIR /app
 RUN protoc --proto_path=./messages --go_out=./ messages/*.proto
 
-RUN go build -o ptrun-server ./server/cmd/ptrun-server/main.go
+WORKDIR /app/server
+RUN go build -o ../ptrun-server ./cmd/ptrun-server/main.go
 
 FROM alpine:latest
 
