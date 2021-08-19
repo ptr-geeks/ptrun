@@ -8,7 +8,11 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	"google.golang.org/protobuf/proto"
+
 	"go.uber.org/zap"
+
+	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
 const (
@@ -22,7 +26,7 @@ type clientImpl struct {
 
 	logger *zap.SugaredLogger
 
-	send chan []byte
+	send chan *messages.Message
 }
 
 func NewClient(conn *websocket.Conn, serv Server, logger *zap.Logger) Client {
@@ -33,7 +37,7 @@ func NewClient(conn *websocket.Conn, serv Server, logger *zap.Logger) Client {
 		conn:   conn,
 		logger: logger.Sugar(),
 
-		send: make(chan []byte),
+		send: make(chan *messages.Message),
 	}
 }
 
@@ -51,7 +55,7 @@ func (c *clientImpl) Close() {
 	// TODO: Server needs to be aware that we disconnected as well
 }
 
-func (c *clientImpl) Send(msg []byte) {
+func (c *clientImpl) Send(msg *messages.Message) {
 	c.send <- msg
 }
 
@@ -84,6 +88,11 @@ func (c *clientImpl) ReadPump() {
 		}
 
 		// Everything seems fine, just forward
+		message := messages.Message{}
+		proto.Unmarshal(msg, &message)
+
+		c.logger.Debugw("received messege", "id", c.id, "remoteAddr", c.addr)
+
 		// TODO: We will need to do something with this
 		fmt.Println(msg)
 	}
@@ -105,7 +114,8 @@ func (c *clientImpl) SendPump() {
 			return
 		}
 
-		writer.Write(message)
+		rawMessage, _ := proto.Marshal(message)
+		writer.Write(rawMessage)
 		// We need to close the writer so that our message
 		// gets flushed to the client
 		if err = writer.Close(); err != nil {

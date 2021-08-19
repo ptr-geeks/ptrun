@@ -1,4 +1,9 @@
 import Phaser from 'phaser';
+import { Terrain } from './objects/terrain';
+
+import grassTileImg from './assets/grassTile.jpg';
+import dirtTileImg from './assets/dirtTile.jpg';
+import backgroundImg from './assets/oblakiBG.jpg'
 import { Player } from './objects/player';
 import animationPng from './assets/animation/animation.png';
 import animationJson from './assets/animation/animation.json';
@@ -13,6 +18,9 @@ class Game extends Phaser.Scene {
     
     preload() {
         this.load.atlas('player',animationPng,animationJson);
+        this.load.image('dirtTile', dirtTileImg);
+        this.load.image('grassTile', grassTileImg);
+        this.load.image('background', backgroundImg);
     }
 
     create() {
@@ -23,17 +31,21 @@ class Game extends Phaser.Scene {
             frameRate: 15,
             repeat: -1,
         });
-
+        this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(1);
         this.player = new Player(this, 400, 350, 'player');
         this.add.existing(this.player);
         this.physics.add.existing(this.player);
         this.physics.world.setBounds( 0, 0, screen.width,screen.height);
+ 
+        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
+        this.bg.setScrollFactor(0);
+        this.add.existing(new Terrain(this, 500, 500, 'grassTile', 'dirtTile', this.player));
+        
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
         this.cameras.main.setBackgroundColor('#fff');
     }
-
     update() {
         this.handlePlayerMove();
     }
@@ -62,16 +74,16 @@ const config = {
     parent: "game",
     width: window.innerWidth,
     height: window.innerHeight,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            debug: true,
-            gravity: { y: 0 },
-        }
-    },
     scale: {
         autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
         mode: Phaser.Scale.NONE, 
+    },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 10000 },
+            debug: false
+        }
     },
     scene: Game,
 };

@@ -3,6 +3,8 @@ package ws
 import (
 	"net"
 	"net/http"
+
+	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
 type Server interface {
@@ -16,7 +18,7 @@ type Client interface {
 	GetID() int32
 	GetRemoteAddr() net.Addr
 
-	Send(msg []byte)
+	Send(msg *messages.Message)
 	Close()
 
 	ReadPump()
