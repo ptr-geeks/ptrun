@@ -3,7 +3,9 @@ import Phaser from 'phaser';
 export class Terrain extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, dirtTile, player) {
         super(scene, x, y);
-
+        
+        this.scene = scene;
+        this.player = player;
         var tileSize = 70;
 
         const grid = [ 
@@ -23,12 +25,15 @@ export class Terrain extends Phaser.GameObjects.Sprite {
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
                 if (grid[i][j] == 1) {
-                    var tile = scene.physics.add.sprite(j*tileSize, i*tileSize, dirtTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
-                    var collider = scene.physics.add.collider(player, tile);
-                    tile.setImmovable(true);
-                    tile.body.allowGravity = false;
+                    this.makeTiles(dirtTile, j*tileSize, i*tileSize, tileSize);
                 }
             }
         }
+    }
+    makeTiles(tileType, x, y, tileSize) {
+        var tile = this.scene.physics.add.sprite(x, y, tileType).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
+        var collider = this.scene.physics.add.collider(this.player, tile);
+        tile.setImmovable(true);
+        tile.body.allowGravity = false;
     }
 }
