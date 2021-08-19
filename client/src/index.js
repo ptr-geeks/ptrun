@@ -16,8 +16,9 @@ class Game extends Phaser.Scene {
         this.cursors = {};
         this.player = null;
         this.wasd = {};
+        this.players = {};
 
-        this.websocket = new Websocket(this.handleMessage);
+        this.websocket = new Websocket(this.handleMessage.bind(this));
     }
 
     preload() {
@@ -36,7 +37,7 @@ class Game extends Phaser.Scene {
         this.bg.setScrollFactor(0);
         this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
 
-
+        
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
 
@@ -64,7 +65,10 @@ class Game extends Phaser.Scene {
 
     handleMessage(msg) {
         if (msg.hasJoin()) {
-            // TODO: Logic
+            const player = new Player(this, 300, 650, 'player');
+            this.players[msg.getPlayerId()] = player;
+            this.add.existing(player);
+            // TODO: Terrain collider
         } else if (msg.hasMove()) {
             // TODO: Logic
         }
