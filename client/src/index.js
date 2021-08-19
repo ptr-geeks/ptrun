@@ -54,6 +54,7 @@ class Game extends Phaser.Scene {
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
             this.player.body.setVelocityX(300);
         }
+
         if (this.cursors.down.isDown || this.wasd.S.isDown) {
             this.player.body.setVelocityY(300);
         } else if (this.cursors.up.isDown || this.wasd.W.isDown) {
