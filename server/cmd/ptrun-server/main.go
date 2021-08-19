@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
@@ -30,12 +30,27 @@ type ServerConfig struct {
 
 func main() {
 	config := ServerConfig{}
-	flag.BoolVar(&config.Debug, "debug", false, "enable debug mode")
-	flag.StringVar(&config.Host, "host", "0.0.0.0", "set server host")
-	flag.StringVar(&config.Port, "port", "8080", "set server port")
-	flag.StringVar(&config.Path, "path", "/ws", "set server WS path")
-	flag.Parse()
 
+	command := &cobra.Command{
+		Use:   "ptrun-server",
+		Short: "Game server for PTRun",
+		Run: func(cmd *cobra.Command, args []string) {
+			run(&config)
+		},
+	}
+
+	command.Flags().BoolVar(&config.Debug, "debug", false, "enable debug mode")
+	command.Flags().StringVar(&config.Host, "host", "0.0.0.0", "set server host")
+	command.Flags().StringVar(&config.Port, "port", "8080", "set server port")
+	command.Flags().StringVar(&config.Path, "path", "/ws", "set server WS path")
+
+	if err := command.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run(config *ServerConfig) {
 	var logger *zap.Logger
 	var err error
 
