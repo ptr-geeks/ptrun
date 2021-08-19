@@ -76,7 +76,7 @@ func isUnexpectedClose(err error) bool {
 }
 
 //reads the messages sended from the client and returns error if needed
-func (c *clientImpl) ReadPump() {
+func (c *clientImpl) ReadPump(server Server) {
 	c.logger.Debugw("started read pump for client",
 		"id", c.id, "remoteAddr", c.addr)
 
@@ -92,6 +92,7 @@ func (c *clientImpl) ReadPump() {
 			}
 
 			c.logger.Debugw("exiting client read pump", "id", c.id, "remoteAddr", c.addr)
+			server.Disconnect(c)
 			break
 		}
 

@@ -24,6 +24,6 @@ type Client interface {
 	Send(msg *messages.Message)
 	Close()
 
-	ReadPump()
+	ReadPump(server Server)
 	SendPump()
 }

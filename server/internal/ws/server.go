@@ -102,7 +102,7 @@ func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 	s.connect <- connectMessage{conn: conn, done: done}
 
 	client := <-done
-	go client.ReadPump()
+	go client.ReadPump(s)
 	go client.SendPump()
 
 	return client
@@ -110,6 +110,15 @@ func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 
 //Disconnect gives Run the data to disconnect client from the server
 func (s *serverImpl) Disconnect(client Client) {
+	var playerid int32 = client.GetID()
+	msg := messages.Message{
+		PlayerId: &playerid,
+		Data: &messages.Message_Leave{
+			Leave: &messages.Leave{},
+		},
+	}
+	s.Broadcast(playerid, &msg)
+
 	s.disconnect <- client
 }
 
