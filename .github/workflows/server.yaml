@@ -2,6 +2,8 @@ name: Server
 on:
   push:
   pull_request:
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -41,9 +43,12 @@ jobs:
           username: ${{github.actor}}
           password: ${{secrets.GITHUB_TOKEN}}
           registry: "ghcr.io"
+      - name: Get the tag
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
           file: "./docker/Dockerfile.server"
-          tags: ghcr.io/${{ github.repository }}/server:0.0.1
+          tags: ghcr.io/${{ github.repository }}/server:${{ steps.get_version.outputs.VERSION }}
           push: true
