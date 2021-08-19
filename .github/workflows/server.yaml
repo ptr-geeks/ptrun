@@ -17,12 +17,14 @@ jobs:
       - name: Get Go dependencies
         working-directory: ./server/
         run: go mod download
+      - name: Generate protobuf
+        run: protoc --proto_path=./messages --go_out=./ messages/*.proto
       - name: Build app
         working-directory: ./server/
         run: go build -o ptrun-server ./cmd/ptrun-server/main.go
   docker:
     name: Docker build
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+    #if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: build
     runs-on: ubuntu-latest
     steps:

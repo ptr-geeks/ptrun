@@ -1,9 +1,11 @@
 FROM golang:1.16-alpine AS builder
 
 WORKDIR /app
-COPY ../server .
+COPY . .
 
-RUN go build -o ptrun-server ./cmd/ptrun-server/main.go
+RUN go mod download
+RUN protoc --proto_path=./messages --go_out=./ messages/*.proto
+RUN go build -o ptrun-server ./server/cmd/ptrun-server/main.go
 
 FROM alpine:latest
 
