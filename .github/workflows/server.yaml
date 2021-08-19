@@ -30,7 +30,7 @@ jobs:
         run: go build -o ptrun-server ./cmd/ptrun-server/main.go
   docker:
     name: Docker build
-    if: ${{ github.event_name == 'create' }}
+    if: ${{ github.event_name == 'release' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
