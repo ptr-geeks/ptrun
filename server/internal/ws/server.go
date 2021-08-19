@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/ptr-geeks/ptrun/server/internal/consts"
+	"github.com/ptr-geeks/ptrun/server/internal/events"
 	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
@@ -58,7 +59,7 @@ func NewServer(logger *zap.Logger) Server {
 //Run is used for connecting and disconnetcing clients from the server
 func (s *serverImpl) Run() {
 	s.logger.Debug("server started and listening for events")
-
+	s.handleBroadcast()
 	for {
 		select {
 		case connect := <-s.connect:
@@ -79,6 +80,7 @@ func (s *serverImpl) Run() {
 			}
 
 		case broadcast := <-s.broadcast:
+			s.logger.Debugw("Broadcasting", "id", broadcast.excludeClient)
 			for clientID, client := range s.clients {
 				if broadcast.excludeClient == clientID {
 					continue
@@ -115,4 +117,11 @@ func (s *serverImpl) Disconnect(client Client) {
 
 func (s *serverImpl) Broadcast(excludeClient int32, msg *messages.Message) {
 	s.broadcast <- broadcastMessage{msg: msg, excludeClient: excludeClient}
+}
+
+func (s *serverImpl) handleBroadcast() {
+	err := events.Subscribe("server.broadcast", s.Broadcast)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
 }
