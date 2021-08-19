@@ -17,6 +17,7 @@ class Game extends Phaser.Scene {
         this.cursors = {};
         this.player = null;
         this.wasd = {};
+        this.players = {};
 
         this.websocket = new Websocket(this.handleMessage.bind(this));
     }
@@ -73,9 +74,7 @@ class Game extends Phaser.Scene {
     }
 
     handleMessage(msg) {
-        console.log('handle message executed');
         if (msg.hasJoin()) {
-            console.log('player joined');
             this.joinRecieve(msg.getPlayerId());
         } else if (msg.hasMove()) {
             const move = msg.getMove();
@@ -90,7 +89,9 @@ class Game extends Phaser.Scene {
 
     joinRecieve(player_id) {
         console.log(player_id);
-
+        const player = new Player(this, 300, 650, 'player');
+        this.players[msg.getPlayerId()] = player;
+        this.physics.add.existing(player);
     }
 }
 
