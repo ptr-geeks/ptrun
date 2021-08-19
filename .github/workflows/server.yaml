@@ -17,6 +17,8 @@ jobs:
       - name: Get Go dependencies
         working-directory: ./server/
         run: go mod download
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
       - name: Generate protobuf
         run: protoc --proto_path=./messages --go_out=./ messages/*.proto
       - name: Build app
