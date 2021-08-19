@@ -5,7 +5,7 @@ on:
 
 jobs:
   ci:
-    name: lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -33,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     steps:
+      - name: Echo ls
+        run: echo $(ls)
       - name: Build app
         working-directory: ./server/
         run: go build -o ptrun-server ./cmd/ptrun-server/main.go
