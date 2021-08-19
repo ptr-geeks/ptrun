@@ -32,7 +32,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      #- uses: actions/checkout@v2
+      - name: Run ls
+        run: echo $(ls)
       - name: Get Docker version
         run: docker --version
       - name: Docker Login
