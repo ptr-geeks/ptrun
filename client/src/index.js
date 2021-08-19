@@ -3,21 +3,19 @@ import { Terrain } from './objects/terrain';
 
 import grassTileImg from './assets/grassTile.jpg';
 import dirtTileImg from './assets/dirtTile.jpg';
-import backgroundImg from './assets/oblakiBG.jpg';
+import backgroundImg from './assets/oblakiBG.jpg'
 import { Player } from './objects/player';
 import playerImg from './assets/player_image.png';
 
-import { Websocket } from './network/websocket';
 
 class Game extends Phaser.Scene {
     constructor() {
         super();
 
-        this.cursors = {};
-        this.player = null;
-        this.wasd = {};
+        this.cursors = {}
+        this.player = null
+        this.wasd = {}
 
-        this.websocket = new Websocket();
     }
 
     preload() {
@@ -35,7 +33,7 @@ class Game extends Phaser.Scene {
         this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
         this.bg.setScrollFactor(0);
         this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
-
+        
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
@@ -47,30 +45,29 @@ class Game extends Phaser.Scene {
     }
 
 
-    handlePlayerMove() {
-        this.player.body.setVelocity(0);
 
-        if (this.cursors.left.isDown || this.wasd.A.isDown) {
+    handlePlayerMove(){
+        if (this.cursors.left.isDown || this.wasd.A.isDown){
             this.player.body.setVelocityX(-300);
-        } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
+        } else if (this.cursors.right.isDown || this.wasd.D.isDown){
             this.player.body.setVelocityX(300);
+        } else {
+            this.player.body.setVelocityX(0);
         }
-        if (this.cursors.down.isDown || this.wasd.S.isDown) {
-            this.player.body.setVelocityY(300);
-        } else if (this.cursors.up.isDown || this.wasd.W.isDown) {
-            this.player.body.setVelocityY(-300);
+        if(this.cursors.up.isDown && this.player.body.touching.down){
+            this.player.body.setVelocityY(-800);
         }
     }
 }
 
 const config = {
     type: Phaser.AUTO,
-    parent: 'game',
+    parent: "game",
     width: window.innerWidth,
     height: window.innerHeight,
     scale: {
         autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
-        mode: Phaser.Scale.NONE,
+        mode: Phaser.Scale.NONE, 
     },
     physics: {
         default: 'arcade',
@@ -84,4 +81,4 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-window.addEventListener('resize', () => game.scale.resize(window.innerWidth, window.innerHeight));
+window.addEventListener("resize", () => game.scale.resize(window.innerWidth, window.innerHeight));
