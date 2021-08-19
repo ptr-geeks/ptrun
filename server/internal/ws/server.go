@@ -1,6 +1,8 @@
 package ws
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -20,6 +22,13 @@ var (
 			return true
 		},
 	}
+)
+
+var (
+	clientscounter = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "ptrun_client_counter",
+		Help: "Currently connected clients in WebSockets",
+	})
 )
 
 // serevrImpl has data about all clients
@@ -63,6 +72,7 @@ func (s *serverImpl) Run() {
 	for {
 		select {
 		case connect := <-s.connect:
+			clientscounter.Inc()
 			s.logger.Infow("new connection", "remoteAddr", connect.conn.RemoteAddr())
 			client := NewClient(connect.conn, s, s.logger.Desugar())
 			s.clients[client.GetID()] = client
