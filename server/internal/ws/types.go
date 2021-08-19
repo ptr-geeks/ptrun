@@ -13,6 +13,8 @@ type Server interface {
 
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
+
+	Broadcast(excludeClient int32, msg *messages.Message)
 }
 
 //Client contains all the methods we need for recognising and working with the Client
