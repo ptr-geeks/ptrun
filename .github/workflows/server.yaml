@@ -45,7 +45,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/${{ github.repository }}/client
+          images: ghcr.io/${{ github.repository }}/server
           tags: type=ref,event=tag
       - name: Build Docker image
         uses: docker/build-push-action@v2
