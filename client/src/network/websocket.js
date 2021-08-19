@@ -24,7 +24,6 @@ export class Websocket {
                 !event.data) {
                 return;
             }
-            console.log("message arrives");
             event.data.arrayBuffer().then(data => {
                 var message = messages.Message.deserializeBinary(data);
                 this.receiveCallback(message);
