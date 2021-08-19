@@ -28,7 +28,7 @@ jobs:
         run: go build -o ptrun-server ./cmd/ptrun-server/main.go
   docker:
     name: Docker build
-    #if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+    if: ${{ github.event_name == 'create' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
