@@ -1,19 +1,14 @@
 FROM golang:1.16-alpine AS builder
 
-WORKDIR /app
-COPY . .
+COPY . /app
 
 WORKDIR /app/server
-RUN go mod download
 
-RUN apk add --no-cache protoc
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-
-WORKDIR /app
-RUN protoc --proto_path=./messages --go_out=./ messages/*.proto
-
-WORKDIR /app/server
-RUN go build -o ../ptrun-server ./cmd/ptrun-server/main.go
+RUN apk add --no-cache protoc && \
+    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+    protoc --proto_path=../messages --go_out=../ ../messages/*.proto && \
+    go mod download && \
+    go build -o ../ptrun-server ./cmd/ptrun-server/main.go
 
 FROM alpine:latest
 
