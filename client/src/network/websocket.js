@@ -1,7 +1,9 @@
 import messages from '../messages_pb';
 
 export class Websocket {
-    constructor() {
+    constructor(receiveCallback) {
+        this.receiveCallback = receiveCallback;
+
         // Create WebSocket connection.
         this.socket = new WebSocket('ws://localhost:8080/ws');
 
@@ -18,20 +20,15 @@ export class Websocket {
 
         // Listen for messages
         this.socket.addEventListener('message', (event) => {
-            var message = messages.Message().deserializeBinary(event.data);
-            switch (message.getDataCase()) {
-                case 4:
-                    this.joinRecieve(message.getPlayerId());
-                    break;
-                case 5:
-                    const move = message.getMove();
-                    this.playerMoveRecieve(message.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
-                    break;
-            
-                default:
-                    break;
+            if (this.receiveCallback == null ||
+                !event.data) {
+                return;
             }
-            console.log('Message from server ', event.data);
+            console.log("message arrives");
+            event.data.arrayBuffer().then(data => {
+                var message = messages.Message.deserializeBinary(data);
+                this.receiveCallback(message);
+            });
         });
 
     }
@@ -50,15 +47,5 @@ export class Websocket {
         move.setDx(dx);
         move.setDy(dy);
         this.sendMessage(message);
-    }
-
-    playerMoveRecieve(player_id, x, y, dx, dy) {
-        console.log(player_id, x, y);
-
-    }
-
-    joinRecieve(player_id) {
-        console.log(player_id);
-
     }
 }

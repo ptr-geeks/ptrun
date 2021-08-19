@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
@@ -19,11 +21,45 @@ var (
 	server ws.Server
 )
 
+type ServerConfig struct {
+	Debug bool
+	Host  string
+	Port  string
+	Path  string
+}
+
 func main() {
-	// Switch with zap.NewProduction() when needed
-	// or even better, add a flag to switch this as needed.
-	// Example: ./ptrun-server --debug
-	logger, err := zap.NewDevelopment()
+	config := ServerConfig{}
+
+	command := &cobra.Command{
+		Use:   "ptrun-server",
+		Short: "Game server for PTRun",
+		Run: func(cmd *cobra.Command, args []string) {
+			run(&config)
+		},
+	}
+
+	command.Flags().BoolVar(&config.Debug, "debug", false, "enable debug mode")
+	command.Flags().StringVar(&config.Host, "host", "0.0.0.0", "set server host")
+	command.Flags().StringVar(&config.Port, "port", "8080", "set server port")
+	command.Flags().StringVar(&config.Path, "path", "/ws", "set server WS path")
+
+	if err := command.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run(config *ServerConfig) {
+	var logger *zap.Logger
+	var err error
+
+	if config.Debug {
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -33,21 +69,19 @@ func main() {
 	server = ws.NewServer(logger)
 	go server.Run()
 
-	// TODO: We should allow some overrides by passing parameters to our executable
-	// Example: ./ptr-server --port 8080 --path "/ws"
 	sugared.Infow("starting websocket endpoint",
-		"addr", "0.0.0.0",
-		"port", 8080,
-		"path", "/ws")
+		"host", config.Host,
+		"port", config.Port,
+		"path", config.Path)
 
 	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get("/ws"), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pat.Get(config.Path), func(w http.ResponseWriter, r *http.Request) {
 		server.Connect(w, r)
 	})
 
 	srv := &http.Server{
 		Handler: mux,
-		Addr:    "0.0.0.0:8080",
+		Addr:    fmt.Sprintf("%s:%s", config.Host, config.Port),
 		// These should probably be moved under internal/const
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
