@@ -15,6 +15,7 @@ class Game extends Phaser.Scene {
         this.cursors = {}
         this.player = null
         this.wasd = {}
+
     }
 
     preload() {
@@ -36,26 +37,26 @@ class Game extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
+
+
     }
     update() {
         this.handlePlayerMove();
     }
 
 
-    handlePlayerMove(){
-        this.player.body.setVelocity(0);
 
+    handlePlayerMove(){
         if (this.cursors.left.isDown || this.wasd.A.isDown){
             this.player.body.setVelocityX(-300);
         } else if (this.cursors.right.isDown || this.wasd.D.isDown){
             this.player.body.setVelocityX(300);
-        } 
-        if (this.cursors.down.isDown || this.wasd.S.isDown){
-            this.player.body.setVelocityY(300);
-        }else if(this.cursors.up.isDown || this.wasd.W.isDown){
-            this.player.body.setVelocityY(-300);
+        } else {
+            this.player.body.setVelocityX(0);
         }
-
+        if(this.cursors.up.isDown && this.player.body.touching.down){
+            this.player.body.setVelocityY(-800);
+        }
     }
 }
 
@@ -71,7 +72,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            //gravity: { y: 300 },
+            gravity: { y: 250 },
             debug: false
         }
     },
