@@ -28,8 +28,7 @@ class Game extends Phaser.Scene {
     }
 
     create() {
-
-        this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(0.8);
+        this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(4);
         this.player = new Player(this, 100, 650, 'player');
         this.add.existing(this.player);
         this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
@@ -79,6 +78,7 @@ const config = {
             debug: false
         }
     },
+    antialias: false,
     scene: Game,
 };
 
