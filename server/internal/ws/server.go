@@ -1,13 +1,14 @@
 package ws
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
 
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 
 	"github.com/ptr-geeks/ptrun/server/internal/consts"
-	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
 var (
@@ -21,76 +22,49 @@ var (
 	}
 )
 
-// serevrImpl has data about all clients
-// and sends the connect and disconnect messages
+var (
+	clients = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "ptrun_clients_websocket",
+		Help: "Currently connected clients to websocket",
+	})
+)
+
 type serverImpl struct {
-	logger  *zap.SugaredLogger
-	clients map[int32]Client //slovar
+	logger *zap.SugaredLogger
+
 	// Channels so we can process request async
-	connect    chan connectMessage
-	disconnect chan Client
-	broadcast  chan broadcastMessage
+	connect chan connectMessage
 }
 
-// connectMessage is used to send the connect message
 type connectMessage struct {
 	conn *websocket.Conn
 	done chan Client
 }
 
-type broadcastMessage struct {
-	msg           *messages.Message
-	excludeClient int32
-}
-
-//NewServer return all the data for the server
 func NewServer(logger *zap.Logger) Server {
 	return &serverImpl{
-		logger:  logger.Sugar(),
-		clients: make(map[int32]Client),
+		logger: logger.Sugar(),
 
 		// Make buffered channels
-		connect:   make(chan connectMessage, consts.ChanBufferSize),
-		broadcast: make(chan broadcastMessage, consts.ChanBufferSize),
+		connect: make(chan connectMessage, consts.ChanBufferSize),
 	}
 }
 
-//Run is used for connecting and disconnetcing clients from the server
 func (s *serverImpl) Run() {
 	s.logger.Debug("server started and listening for events")
 
 	for {
 		select {
 		case connect := <-s.connect:
+			clients.Inc()
 			s.logger.Infow("new connection", "remoteAddr", connect.conn.RemoteAddr())
 			client := NewClient(connect.conn, s, s.logger.Desugar())
-			s.clients[client.GetID()] = client
 
 			connect.done <- client
-
-		case disconnect := <-s.disconnect:
-			s.logger.Infow("disconnect", "id", disconnect.GetID(), "remoteAddr", disconnect.GetRemoteAddr())
-			_, exists := s.clients[disconnect.GetID()]
-			if exists {
-				delete(s.clients, disconnect.GetID())
-				disconnect.Close()
-			} else {
-				s.logger.Warnw("cannot find client internally", "id", disconnect.GetID(), "remoteAddr", disconnect.GetRemoteAddr())
-			}
-
-		case broadcast := <-s.broadcast:
-			for clientID, client := range s.clients {
-				if broadcast.excludeClient == clientID {
-					continue
-				}
-
-				client.Send(broadcast.msg)
-			}
 		}
 	}
 }
 
-//Connect gives Run the data to connect the client and starts functions ReadPump and SendPump
 func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 	conn, err := socketUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -102,26 +76,12 @@ func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 	s.connect <- connectMessage{conn: conn, done: done}
 
 	client := <-done
-	go client.ReadPump(s)
+	go client.ReadPump()
 	go client.SendPump()
 
 	return client
 }
 
-//Disconnect gives Run the data to disconnect client from the server
 func (s *serverImpl) Disconnect(client Client) {
-	var playerid int32 = client.GetID()
-	msg := messages.Message{
-		PlayerId: &playerid,
-		Data: &messages.Message_Leave{
-			Leave: &messages.Leave{},
-		},
-	}
-	s.Broadcast(playerid, &msg)
 
-	s.disconnect <- client
-}
-
-func (s *serverImpl) Broadcast(excludeClient int32, msg *messages.Message) {
-	s.broadcast <- broadcastMessage{msg: msg, excludeClient: excludeClient}
 }
