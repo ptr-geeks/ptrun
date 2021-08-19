@@ -6,6 +6,7 @@ import dirtTileImg from './assets/dirtTile.jpg';
 import backgroundImg from './assets/oblakiBG.jpg';
 import { Player } from './objects/player';
 import playerImg from './assets/player_image.png';
+import { Background } from './objects/background';
 
 import { Websocket } from './network/websocket';
 
@@ -28,24 +29,22 @@ class Game extends Phaser.Scene {
     }
 
     create() {
-
-        this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(0.8);
+        this.background = new Background(this, 0, 0, 0, 0, 'background');
         this.player = new Player(this, 100, 650, 'player');
-        this.add.existing(this.player);
-        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
-        this.bg.setScrollFactor(0);
-        this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
 
+        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
+        this.add.existing(this.background);
+        this.add.existing(this.player);
+        this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
-
-
     }
+
     update() {
         this.handlePlayerMove();
+        this.background.update();
     }
-
 
     handlePlayerMove() {
         this.player.body.setVelocity(0);
@@ -55,6 +54,7 @@ class Game extends Phaser.Scene {
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
             this.player.body.setVelocityX(300);
         }
+
         if (this.cursors.down.isDown || this.wasd.S.isDown) {
             this.player.body.setVelocityY(300);
         } else if (this.cursors.up.isDown || this.wasd.W.isDown) {
