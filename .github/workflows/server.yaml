@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1
-      - name: Install Go protoc
-        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-      - name: Generate protobuf
-        run: protoc --proto_path=./messages --go_out=./ messages/*.proto
+      #- name: Install Protoc
+      #  uses: arduino/setup-protoc@v1
+      #- name: Install Go protoc
+      #  run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      #- name: Generate protobuf
+      #  run: protoc --proto_path=./messages --go_out=./ messages/*.proto
       - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
