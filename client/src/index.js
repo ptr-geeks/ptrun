@@ -7,6 +7,7 @@ import backgroundImg from './assets/oblakiBG.jpg';
 import { Player } from './objects/player';
 import playerImg from './assets/player_image.png';
 
+import { Websocket } from './network/websocket';
 
 class Game extends Phaser.Scene {
     constructor() {
@@ -15,6 +16,8 @@ class Game extends Phaser.Scene {
         this.cursors = {};
         this.player = null;
         this.wasd = {};
+
+        this.websocket = new Websocket();
     }
 
     preload() {
