@@ -73,13 +73,13 @@ class Game extends Phaser.Scene {
     }
 
     handleMessage(msg) {
-        console.log("handle message executed");
+        console.log('handle message executed');
         if (msg.hasJoin()) {
-            console.log("player joined");
-            this.joinRecieve(message.getPlayerId());
+            console.log('player joined');
+            this.joinRecieve(msg.getPlayerId());
         } else if (msg.hasMove()) {
-            const move = message.getMove();
-            this.playerMoveRecieve(message.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
+            const move = msg.getMove();
+            this.playerMoveRecieve(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
         }
     }
 
