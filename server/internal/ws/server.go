@@ -66,7 +66,8 @@ func (s *serverImpl) Run() {
 			s.logger.Infow("new connection", "remoteAddr", connect.conn.RemoteAddr())
 			client := NewClient(connect.conn, s, s.logger.Desugar())
 			s.clients[client.GetID()] = client
-
+			msg := &messages.Message{PlayerId: client.GetID(), Data: &messages.Message_Join{}}
+			client.Send(msg)
 			connect.done <- client
 
 		case disconnect := <-s.disconnect:
