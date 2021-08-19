@@ -59,7 +59,7 @@ func NewServer(logger *zap.Logger) Server {
 //Run is used for connecting and disconnetcing clients from the server
 func (s *serverImpl) Run() {
 	s.logger.Debug("server started and listening for events")
-	s.HandleBroadcast()
+	s.handleBroadcast()
 	for {
 		select {
 		case connect := <-s.connect:
@@ -119,7 +119,7 @@ func (s *serverImpl) Broadcast(excludeClient int32, msg *messages.Message) {
 	s.broadcast <- broadcastMessage{msg: msg, excludeClient: excludeClient}
 }
 
-func (s *serverImpl) HandleBroadcast() {
+func (s *serverImpl) handleBroadcast() {
 	err := events.Subscribe("server.broadcast", s.Broadcast)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
