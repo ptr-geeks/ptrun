@@ -10,48 +10,6 @@
 			"scale": 1,
 			"frames": [
 				{
-					"filename": "stand.png",
-					"rotated": false,
-					"trimmed": true,
-					"sourceSize": {
-						"w": 1920,
-						"h": 1080
-					},
-					"spriteSourceSize": {
-						"x": 745,
-						"y": 250,
-						"w": 311,
-						"h": 511
-					},
-					"frame": {
-						"x": 1,
-						"y": 482,
-						"w": 311,
-						"h": 511
-					}
-				},
-				{
-					"filename": "frame1.png",
-					"rotated": false,
-					"trimmed": true,
-					"sourceSize": {
-						"w": 1920,
-						"h": 1080
-					},
-					"spriteSourceSize": {
-						"x": 576,
-						"y": 305,
-						"w": 472,
-						"h": 420
-					},
-					"frame": {
-						"x": 784,
-						"y": 539,
-						"w": 472,
-						"h": 420
-					}
-				},
-				{
 					"filename": "frame2.png",
 					"rotated": false,
 					"trimmed": true,
@@ -70,6 +28,27 @@
 						"y": 1,
 						"w": 590,
 						"h": 479
+					}
+				},
+				{
+					"filename": "stand.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1080
+					},
+					"spriteSourceSize": {
+						"x": 745,
+						"y": 250,
+						"w": 311,
+						"h": 511
+					},
+					"frame": {
+						"x": 1,
+						"y": 482,
+						"w": 311,
+						"h": 511
 					}
 				},
 				{
@@ -133,6 +112,27 @@
 						"y": 488,
 						"w": 468,
 						"h": 429
+					}
+				},
+				{
+					"filename": "frame1.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1080
+					},
+					"spriteSourceSize": {
+						"x": 576,
+						"y": 305,
+						"w": 472,
+						"h": 420
+					},
+					"frame": {
+						"x": 784,
+						"y": 539,
+						"w": 472,
+						"h": 420
 					}
 				},
 				{
