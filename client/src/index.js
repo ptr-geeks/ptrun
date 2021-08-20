@@ -12,6 +12,7 @@ import backgroundImg from './assets/oblakiBG.jpg';
 
 import animationPng from './assets/player/animation_white.png';
 import animationJson from './assets/player/animation.json';
+import standImg from './assets/player/stand.png';
 
 class Game extends Phaser.Scene {
     constructor(config) {
@@ -28,6 +29,7 @@ class Game extends Phaser.Scene {
         this.load.image('dirtTile', dirtTileImg);
         this.load.image('grassTile', grassTileImg);
         this.load.image('background', backgroundImg);
+        this.load.image('stand', standImg);
 
         this.load.atlas('player', animationPng, animationJson);
     }
@@ -141,7 +143,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 420 },
-            //debug: true
+            debug: false
         }
     },
     antialias: false,

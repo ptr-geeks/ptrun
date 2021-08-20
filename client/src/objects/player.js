@@ -16,7 +16,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setScale(0.15);
         this.body
             .setSize(630, 500, true)
-            .setOffset(500, 280);
+            .setOffset(500, 260);
 
         this.runAnimationFrames = this.anims.generateFrameNames('player', { prefix: 'frame', start: 1, end: 6 });
         this.anims.create({
@@ -40,10 +40,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (dx < 0) {
             this.flipX = true;
-            this.body.setOffset(790, 280);
+            this.body.setOffset(790, 260);
         } else if (dx > 0) {
             this.flipX = false;
-            this.body.setOffset(500, 280);
+            this.body.setOffset(500, 260);
         }
 
         if (!this.anims?.isPlaying && dx !== 0) {
@@ -52,6 +52,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (dx === 0 || !this.body.touching.down) {
             this.anims.stop();
+        }
+
+        if (dx == 0 && dy == 0) {
+            this.setTexture('stand');
         }
     }
 }
