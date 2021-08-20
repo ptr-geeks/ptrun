@@ -92,29 +92,31 @@ class Game extends Phaser.Scene {
     }
 
     handleLeaderboard() {
-        this.leaderboard.setFontSize(16);
-        let keys = Object.keys(this.players);
-        let topclient = this.player;
-        let ppl = 'You: ';
-        keys.forEach(key => {
-            let client = this.players[key];
-            if (topclient.x < client.x) {
-                topclient = client;
-                if (topclient == this.player) {
-                    ppl = 'You: ';
-                } else {
-                    ppl = 'Not you: ';
+        if (this.won == false) {
+            this.leaderboard.setFontSize(16);
+            let keys = Object.keys(this.players);
+            let topclient = this.player;
+            let ppl = 'You: ';
+            keys.forEach(key => {
+                let client = this.players[key];
+                if (topclient.x < client.x) {
+                    topclient = client;
+                    if (topclient == this.player) {
+                        ppl = 'You: ';
+                    } else {
+                        ppl = 'Not you: ';
+                    }
                 }
+            });
+            this.leaderboard.x = this.player.x - 400;
+            this.leaderboard.y = this.player.y - 500;
+            this.leaderboard.text = 'Leaderboard: \n' + ppl + topclient.x.toString();
+            this.leaderboard.setColor("#000000");
+            if (topclient.x > 4000) {
+                this.leaderboard.text = 'Victory! Congratulations to ' + ppl;
+                this.leaderboard.setFontSize(50);
+                this.won = true;
             }
-        });
-        this.leaderboard.x = this.player.x - 400;
-        this.leaderboard.y = this.player.y - 500;
-        this.leaderboard.text = 'Leaderboard: \n' + ppl + topclient.x.toString();
-        this.leaderboard.setColor("#000000");
-        if (this.won == false && topclient.x > 4000) {
-            this.leaderboard.text = 'Victory! Congratulations to ' + ppl;
-            this.leaderboard.setFontSize(50);
-            this.won = true;
         }
     }
 
