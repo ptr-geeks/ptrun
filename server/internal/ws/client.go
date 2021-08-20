@@ -105,6 +105,7 @@ func (c *clientImpl) ReadPump() {
 	}
 
 	c.server.Disconnect(c)
+	//events.Publish("server.disconnect", c.id)
 }
 
 // SendPump sends messages to client and checks if there is an error and returns it

@@ -69,6 +69,7 @@ func (s *serverImpl) Run() {
 			s.clients[client.GetID()] = client
 
 			connect.done <- client
+			s.sendPlayers(client)
 
 		case disconnect := <-s.disconnect:
 			s.logger.Infow("disconnect", "id", disconnect.GetID(), "remoteAddr", disconnect.GetRemoteAddr())
@@ -80,8 +81,20 @@ func (s *serverImpl) Run() {
 				s.logger.Warnw("cannot find client internally", "id", disconnect.GetID(), "remoteAddr", disconnect.GetRemoteAddr())
 			}
 
+			// Notify all other players
+			var playerid int32 = disconnect.GetID()
+			msg := messages.Message{
+				PlayerId: &playerid,
+				Data: &messages.Message_Leave{
+					Leave: &messages.Leave{},
+				},
+			}
+
+			s.Broadcast(playerid, &msg)
+
 		case broadcast := <-s.broadcast:
 			s.logger.Debugw("Broadcasting", "id", broadcast.excludeClient)
+			broadcast.msg.PlayerId = &broadcast.excludeClient
 			for clientID, client := range s.clients {
 				if broadcast.excludeClient == clientID {
 					continue
@@ -124,5 +137,25 @@ func (s *serverImpl) handleBroadcast() {
 	err := events.Subscribe("server.broadcast", s.Broadcast)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
+	}
+}
+
+func (s *serverImpl) sendPlayers(client Client) {
+	s.logger.Debugw("sending client existing player list", "id", client.GetID())
+	for id := range s.clients {
+		if client.GetID() == id {
+			continue
+		}
+
+		msg := &messages.Message{
+			PlayerId: &id,
+			Data: &messages.Message_Join{
+				Join: &messages.Join{
+					Username: "",
+				},
+			},
+		}
+
+		client.Send(msg)
 	}
 }
