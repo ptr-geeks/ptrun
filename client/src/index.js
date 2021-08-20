@@ -23,6 +23,8 @@ class Game extends Phaser.Scene {
         this.player = null;
         this.wasd = {};
         this.players = {};
+        this.hacks = false;
+        this.h_pressed = false;
     }
 
     preload() {
@@ -39,13 +41,17 @@ class Game extends Phaser.Scene {
         this.player = new Player(this, 100, 600, 'player');
         this.terrain = new Terrain(this.physics.world, this);
 
-        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
+        this.hacks_text = this.add.text(0, 0, 'Hacks: OFF', {fontSize: 50});
+        this.hacks_text.setScrollFactor(0);
+
+        this.cameras.main.startFollow(this.player, false, 1, 1, 0, 0);
         this.add.existing(this.background);
 
         this.physics.add.collider(this.terrain, this.player);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
+        this.h_key = this.input.keyboard.addKeys('H');
 
         //this.inputKeys = [
         //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
@@ -62,17 +68,38 @@ class Game extends Phaser.Scene {
     }
 
     handlePlayerMove() {
-        var velocity = { dx: 0, dy : 0 };
+        var velocity = { dx: 0, dy: 0 };
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
-            velocity.dx = -300;
+            velocity.dx = -900;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-            velocity.dx = 300;
+            velocity.dx = 900;
         } else {
             velocity.dx = 0;
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
-            velocity.dy = -400;
+        if (this.hacks) {
+            if (this.cursors.up.isDown || this.wasd.W.isDown) {
+                velocity.dy = -900;
+            } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
+                velocity.dy = 900;
+            } else {
+                velocity.dy = 0;
+            }
+        } else {
+            if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
+                velocity.dy = -400;
+            }
+        }
+
+        if (this.h_key.H.isDown && !this.h_pressed) {
+            this.h_pressed = true;
+            this.hacks = !this.hacks;
+            this.physics.world.gravity.y = this.hacks ? 0 : 420;
+            this.hacks_text.setText(this.hacks ? 'Hacks: ON' : 'Hacks: OFF');
+        }
+
+        if (this.h_key.H.isUp) {
+            this.h_pressed = false;
         }
 
         this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);
