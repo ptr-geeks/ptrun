@@ -10,8 +10,6 @@ import grassTileImg from './assets/grassTile.jpg';
 import dirtTileImg from './assets/dirtTile.jpg';
 import backgroundImg from './assets/oblakiBG.jpg';
 
-import playerImg from './assets/player_image.png';
-
 import animationPng from './assets/player/animation_white.png';
 import animationJson from './assets/player/animation.json';
 
