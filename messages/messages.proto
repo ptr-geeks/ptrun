@@ -14,11 +14,14 @@ message Move {
     float dy = 4;
 }
 
+message Leave {}
+
 message Message {
     optional string server = 1;
     optional int32 player_id = 2;
     oneof data {
         Join join = 4;
         Move move = 5;
+        Leave leave = 6;
     }
 }
