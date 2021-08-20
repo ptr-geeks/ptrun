@@ -114,7 +114,7 @@ class Game extends Phaser.Scene {
         if (this.won == false && topclient.x > 4000) {
             this.leaderboard.text = 'Victory! Congratulations to ' + ppl;
             this.leaderboard.setFontSize(50);
-            this.won == true;
+            this.won = true;
         }
     }
 
