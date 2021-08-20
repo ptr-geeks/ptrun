@@ -130,6 +130,10 @@ func (s *serverImpl) Disconnect(client Client) {
 }
 
 func (s *serverImpl) Broadcast(excludeClient int32, msg *messages.Message) {
+	if join := msg.GetJoin(); join != nil {
+		s.clients[excludeClient].SetNickname(join.GetNickname())
+	}
+
 	s.broadcast <- broadcastMessage{msg: msg, excludeClient: excludeClient}
 }
 
@@ -151,7 +155,7 @@ func (s *serverImpl) sendPlayers(client Client) {
 			PlayerId: &id,
 			Data: &messages.Message_Join{
 				Join: &messages.Join{
-					Username: "",
+					Nickname: s.clients[id].GetNickname(),
 				},
 			},
 		}

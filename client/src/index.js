@@ -29,14 +29,13 @@ class Game extends Phaser.Scene {
         this.load.image('dirtTile', dirtTileImg);
         this.load.image('grassTile', grassTileImg);
         this.load.image('background', backgroundImg);
-        //this.load.image('player', playerImg);
 
         this.load.atlas('player', animationPng, animationJson);
     }
 
     create() {
         this.background = new Background(this, 0, 0, 0, 0, 'background').setDepth(-100);
-        this.player = new Player(this, 100, 650, 'player');
+        this.player = new Player(this, 100, 650, 'player', true);
         this.terrain = new Terrain(this.physics.world, this);
 
         this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
@@ -71,7 +70,7 @@ class Game extends Phaser.Scene {
             velocity.dx = 0;
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
+        if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.wasd.W)) && this.player.body.velocity.y === 0) {
             velocity.dy = -400;
         }
 
@@ -87,28 +86,40 @@ class Game extends Phaser.Scene {
 
     handleMessage(msg) {
         if (msg.hasJoin()) {
-            this.joinRecieve(msg.getPlayerId());
+            const join = msg.getJoin();
+            this.joinRecieve(msg.getPlayerId(), join.getNickname());
+        } else if (msg.hasLeave()) {
+            this.leaveReceive(msg.getPlayerId());
         } else if (msg.hasMove()) {
             const move = msg.getMove();
             this.playerMoveRecieve(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
-        } else if (msg.hasLeave()) {
-            this.leaveReceive(msg.getPlayerId());
+        } else if (msg.hasChangeName()) {
+            const changeName = msg.getChangeName();
+            this.changeNameReceive(msg.getPlayerId(), changeName.getNickname());
         }
     }
 
-    playerMoveRecieve(player_id, x, y, dx, dy) {
-        this.players[player_id].move(x, y, dx, dy);
+    playerMoveRecieve(playerId, x, y, dx, dy) {
+        this.players[playerId].move(x, y, dx, dy);
     }
 
-    joinRecieve(player_id) {
+    joinRecieve(playerId, nickname) {
         const player = new Player(this, 100, 650, 'player');
-        this.players[player_id] = player;
+        this.players[playerId] = player;
         this.physics.add.collider(this.terrain, player);
+
+        // TODO: Set player nickname
+        console.log('Nickname set', playerId, nickname);
     }
 
-    leaveReceive(player_id) {
-        this.players[player_id].destroy();
-        delete this.players[player_id];
+    leaveReceive(playerId) {
+        this.players[playerId].destroy();
+        delete this.players[playerId];
+    }
+
+    changeNameReceive(playerId, nickname) {
+        // TODO: Change player nickname
+        console.log('Nickname change', playerId, nickname);
     }
 }
 

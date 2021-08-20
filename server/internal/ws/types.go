@@ -21,6 +21,9 @@ type Client interface {
 	GetID() int32
 	GetRemoteAddr() net.Addr
 
+	GetNickname() string
+	SetNickname(string)
+
 	Send(msg *messages.Message)
 	Close()
 

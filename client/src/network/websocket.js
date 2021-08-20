@@ -14,11 +14,9 @@ export class Websocket {
             var message = new messages.Message();
             var join = new messages.Join();
             message.setJoin(join);
-            join.setUsername('spela in lara');
+            join.setNickname(this.getInitialNickname());
             this.sendMessage(message);
         });
-
-
 
         // Listen for messages
         this.socket.addEventListener('message', (event) => {
@@ -30,7 +28,6 @@ export class Websocket {
             const message = messages.Message.deserializeBinary(new Uint8Array(event.data));
             this.receiveCallback(message);
         });
-
     }
 
     sendMessage(message) {
@@ -47,5 +44,22 @@ export class Websocket {
         move.setDx(dx);
         move.setDy(dy);
         this.sendMessage(message);
+    }
+
+    playerNameSend(nickname) {
+        window.localStorage.setItem('playerName', nickname);
+
+        const changeName = new messages.ChangeName();
+        changeName.setNickname(nickname);
+        const message = new messages.Message();
+        message.setChangeName(changeName);
+        this.sendMessage(message);
+    }
+
+    getInitialNickname() {
+        const storedName = window.localStorage.getItem('playerName');
+        if (storedName) return storedName;
+
+        return `Player ${Math.floor(Math.random() * 100)}`;
     }
 }
