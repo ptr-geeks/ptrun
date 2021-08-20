@@ -14,6 +14,7 @@ import playerImg from './assets/player_image.png';
 
 import animationPng from './assets/player/animation_white.png';
 import animationJson from './assets/player/animation.json';
+import standImg from './assets/player/stand.png'
 
 class Game extends Phaser.Scene {
     constructor() {
@@ -29,6 +30,7 @@ class Game extends Phaser.Scene {
         this.load.image('dirtTile', dirtTileImg);
         this.load.image('grassTile', grassTileImg);
         this.load.image('background', backgroundImg);
+        this.load.image('stand', standImg);
         //this.load.image('player', playerImg);
 
         this.load.atlas('player', animationPng, animationJson);
