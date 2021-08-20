@@ -4,9 +4,9 @@ export class Terrain extends Phaser.GameObjects.Sprite {
     constructor(scene, x, y, grassTile, dirtTile, player) {
         super(scene, x, y);
 
-        var tileSize = 70;
-        var collider;
-        var tile;
+        const tileSize = 64;
+        let collider;
+        let tile;
 
         const grid = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -24,14 +24,14 @@ export class Terrain extends Phaser.GameObjects.Sprite {
 
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] == 1) {
-                    tile = scene.physics.add.sprite(j * tileSize, i * tileSize, grassTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
-                    collider = scene.physics.add.collider(player, tile);
-                    tile.setImmovable(true);
-                    tile.body.allowGravity = false;
-                }
-                else if (grid[i][j] == 2) {
-                    tile = scene.physics.add.sprite(j * tileSize, i * tileSize, dirtTile).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
+                if (grid[i][j] !== 0) {
+                    let tile_type;
+                    if (grid[i][j] === 1) {
+                        tile_type = grassTile;
+                    } else if (grid[i][j] === 2) {
+                        tile_type = dirtTile;
+                    }
+                    tile = scene.physics.add.sprite(j * tileSize, i * tileSize, tile_type).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
                     collider = scene.physics.add.collider(player, tile);
                     tile.setImmovable(true);
                     tile.body.allowGravity = false;

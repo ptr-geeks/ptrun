@@ -30,7 +30,7 @@ class Game extends Phaser.Scene {
 
     create() {
         this.background = new Background(this, 0, 0, 0, 0, 'background');
-        this.player = new Player(this, 100, 650, 'player');
+        this.player = new Player(this, 100, 600, 'player');
 
         this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
         this.add.existing(this.background);
