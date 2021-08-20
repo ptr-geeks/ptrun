@@ -14,6 +14,13 @@ message Move {
     float dy = 4;
 }
 
+message Cirkularka {
+    float x = 1;
+    float y = 2;
+    float dx = 3;
+    optional int32 cirkularka_id = 4;
+}
+
 message Leave {}
 
 message Message {
@@ -23,5 +30,6 @@ message Message {
         Join join = 4;
         Move move = 5;
         Leave leave = 6;
+        Cirkularka cirkularka = 7;
     }
 }

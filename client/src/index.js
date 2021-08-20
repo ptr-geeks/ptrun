@@ -9,11 +9,13 @@ import { Player } from './objects/player';
 import grassTileImg from './assets/grassTile.jpg';
 import dirtTileImg from './assets/dirtTile.jpg';
 import backgroundImg from './assets/oblakiBG.jpg';
+import cirkularkaImg from './assets/CIRKULARKA.png';
 
 import playerImg from './assets/player_image.png';
 
 import animationPng from './assets/player/animation_white.png';
 import animationJson from './assets/player/animation.json';
+import { Cirkularka } from './objects/cirkularka';
 
 class Game extends Phaser.Scene {
     constructor() {
@@ -29,6 +31,7 @@ class Game extends Phaser.Scene {
         this.load.image('dirtTile', dirtTileImg);
         this.load.image('grassTile', grassTileImg);
         this.load.image('background', backgroundImg);
+        this.load.image('cirkularka', cirkularkaImg);
         //this.load.image('player', playerImg);
 
         this.load.atlas('player', animationPng, animationJson);
@@ -46,6 +49,7 @@ class Game extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
         //this.inputKeys = [
         //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
@@ -59,6 +63,7 @@ class Game extends Phaser.Scene {
     update() {
         this.handlePlayerMove();
         this.background.update();
+        this.handleCirkularka();
     }
 
     handlePlayerMove() {
@@ -85,6 +90,36 @@ class Game extends Phaser.Scene {
         }
     }
 
+    handleCirkularka() {
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+            if (this.player.body.velocity.x >= 0) {
+                this.cirkularka = new Cirkularka(this, this.player.x + 150, this.player.y, 'cirkularka');
+                this.cirkularka.setVelocityX(400);
+            } else {
+                this.cirkularka = new Cirkularka(this, this.player.x - 150, this.player.y, 'cirkularka');
+                this.cirkularka.setVelocityX(-400);
+            }
+            this.physics.add.collider(this.terrain, this.cirkularka);
+            this.physics.add.overlap(this.player, this.cirkularka, this.playerDeath, null, this);
+
+            this.websocket.cikrularkaSend(this.cirkularka.x, this.cirkularka.y, this.cirkularka.body.velocity.x);
+        }
+    }
+
+    playerDeath() {
+        //TODO: explosion
+        this.player.setPosition(100, 650);
+        this.websocket.playerMoveSend(this.player.x, this.player.y, this.player.body.velocity.x, this.player.body.velocity.y);
+        this.cirkularka.destroy();
+    }
+
+    cirkularkaRecieve(id, x, y, dx) {
+        this.cirkularka = new Cirkularka(this, x, y, 'cirkularka');
+        this.cirkularka.setVelocityX(dx);
+        this.physics.add.collider(this.terrain, this.cirkularka);
+        this.physics.add.overlap(this.player, this.cirkularka, this.playerDeath, null, this);
+    }
+
     handleMessage(msg) {
         if (msg.hasJoin()) {
             this.joinRecieve(msg.getPlayerId());
@@ -93,6 +128,9 @@ class Game extends Phaser.Scene {
             this.playerMoveRecieve(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
         } else if (msg.hasLeave()) {
             this.leaveReceive(msg.getPlayerId());
+        } else if (msg.hasCirkularka()) {
+            const move = msg.getCirkularka();
+            this.cirkularkaRecieve(msg.getCirkularkaId(), move.getX(), move.getY(), move.getDx());
         }
     }
 

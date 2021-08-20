@@ -48,4 +48,14 @@ export class Websocket {
         move.setDy(dy);
         this.sendMessage(message);
     }
+
+    cikrularkaSend(x, y, dx) {
+        var message = new messages.Message();
+        var cirkularka = new messages.Cirkularka();
+        message.setCirkularka(cirkularka);
+        cirkularka.setX(x);
+        cirkularka.setY(y);
+        cirkularka.setDx(dx);
+        this.sendMessage(message);
+    }
 }
