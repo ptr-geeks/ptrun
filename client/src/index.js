@@ -5,8 +5,8 @@ import grassTileImg from './assets/grassTile.jpg';
 import dirtTileImg from './assets/dirtTile.jpg';
 import backgroundImg from './assets/oblakiBG.jpg'
 import { Player } from './objects/player';
-import animationPng from './assets/animation/animation.png';
-import animationJson from './assets/animation/animation.json';
+import animationPng from './assets/animation/animation2.png';
+import animationJson from './assets/animation/animation2.json';
 
 class Game extends Phaser.Scene {
     constructor() {
@@ -27,7 +27,7 @@ class Game extends Phaser.Scene {
         this.anims.create({
             key: 'run',
             paused: false,
-            frames: this.anims.generateFrameNames('player', { prefix: 'frame', start: 1, end: 6 }),
+            frames: this.anims.generateFrameNames('player', { prefix: 'frame', start: 2, end: 7 }),
             frameRate: 15,
             repeat: -1,
         });
