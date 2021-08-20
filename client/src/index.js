@@ -70,9 +70,9 @@ class Game extends Phaser.Scene {
 
         if (this.hacks) {
             if (this.cursors.up.isDown || this.wasd.W.isDown) {
-                velocity.dy = -300;
+                velocity.dy = -600;
             } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
-                velocity.dy = 300;
+                velocity.dy = 600;
             } else {
                 velocity.dy = 0;
             }
