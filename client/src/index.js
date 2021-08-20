@@ -43,7 +43,7 @@ class Game extends Phaser.Scene {
         this.cameras.main.startFollow(this.player, false, 1, 1, 0, 0);
         this.add.existing(this.background);
 
-        this.physics.add.collider(this.terrain, this.player);
+        this.collider = this.physics.add.collider(this.terrain, this.player);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
@@ -87,6 +87,7 @@ class Game extends Phaser.Scene {
             this.player.hacks = this.hacks;
             this.physics.world.gravity.y = this.hacks ? 0 : 420;
             this.hacks_text.setText(this.hacks ? 'Hacks: ON' : 'Hacks: OFF');
+            this.collider.active = !this.hacks;
         }
 
         this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);
