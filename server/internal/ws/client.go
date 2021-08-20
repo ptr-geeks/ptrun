@@ -81,7 +81,7 @@ func (c *clientImpl) ReadPump() {
 	c.logger.Debugw("started read pump for client",
 		"id", c.id, "remoteAddr", c.addr)
 
-	defer c.Close() //
+	//defer c.Close() //
 	for {
 		_, msg, err := c.conn.ReadMessage()
 		if err != nil {
@@ -103,6 +103,8 @@ func (c *clientImpl) ReadPump() {
 
 		events.Publish("server.broadcast", c.id, message)
 	}
+
+	c.server.Disconnect(c)
 }
 
 // SendPump sends messages to client and checks if there is an error and returns it

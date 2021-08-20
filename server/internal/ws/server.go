@@ -60,8 +60,9 @@ func NewServer(logger *zap.Logger) Server {
 		clients: make(map[int32]Client),
 
 		// Make buffered channels
-		connect:   make(chan connectMessage, consts.ChanBufferSize),
-		broadcast: make(chan broadcastMessage, consts.ChanBufferSize),
+		connect:    make(chan connectMessage, consts.ChanBufferSize),
+		broadcast:  make(chan broadcastMessage, consts.ChanBufferSize),
+		disconnect: make(chan Client, consts.ChanBufferSize),
 	}
 }
 
