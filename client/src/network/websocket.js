@@ -1,7 +1,9 @@
 import messages from '../messages_pb';
 
 export class Websocket {
-    constructor() {
+    constructor(receiveCallback) {
+        this.receiveCallback = receiveCallback;
+
         // Create WebSocket connection.
         this.socket = new WebSocket('ws://localhost:8080/ws');
 
@@ -11,15 +13,21 @@ export class Websocket {
             var join = new messages.Join();
             message.setJoin(join);
             join.setUsername('spela in lara');
-            console.log('username:', join.getUsername);
             this.sendMessage(message);
         });
 
+
+
         // Listen for messages
         this.socket.addEventListener('message', (event) => {
-            var message2 = messages.Message().deserializeBinary(event.data);
-            console.log(message2);
-            console.log('Message from server ', event.data);
+            if (this.receiveCallback == null ||
+                !event.data) {
+                return;
+            }
+            event.data.arrayBuffer().then(data => {
+                var message = messages.Message.deserializeBinary(data);
+                this.receiveCallback(message);
+            });
         });
 
     }
@@ -27,5 +35,16 @@ export class Websocket {
     sendMessage(message) {
         var bytes = message.serializeBinary();
         this.socket.send(bytes);
+    }
+
+    playerMoveSend(x, y, dx, dy) {
+        var message = new messages.Message();
+        var move = new messages.Move();
+        message.setMove(move);
+        move.setX(x);
+        move.setY(y);
+        move.setDx(dx);
+        move.setDy(dy);
+        this.sendMessage(message);
     }
 }
