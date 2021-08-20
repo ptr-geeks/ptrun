@@ -70,9 +70,9 @@ class Game extends Phaser.Scene {
     handlePlayerMove() {
         var velocity = { dx: 0, dy: 0 };
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
-            velocity.dx = -900;
+            velocity.dx = this.hacks ? -900 : -300;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-            velocity.dx = 900;
+            velocity.dx = this.hacks ? 900 : 300;
         } else {
             velocity.dx = 0;
         }
