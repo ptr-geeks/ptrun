@@ -1,14 +1,19 @@
 import Phaser from 'phaser';
+
+import { Websocket } from './network/websocket';
+
 import { Terrain } from './objects/terrain';
+import { Background } from './objects/background';
+import { Player } from './objects/player';
 
 import grassTileImg from './assets/grassTile.jpg';
 import dirtTileImg from './assets/dirtTile.jpg';
 import backgroundImg from './assets/oblakiBG.jpg';
-import { Player } from './objects/player';
-import playerImg from './assets/player_image.png';
-import { Background } from './objects/background';
 
-import { Websocket } from './network/websocket';
+import playerImg from './assets/player_image.png';
+
+import animationPng from './assets/player/animation_white.png';
+import animationJson from './assets/player/animation.json';
 
 class Game extends Phaser.Scene {
     constructor() {
@@ -17,28 +22,38 @@ class Game extends Phaser.Scene {
         this.cursors = {};
         this.player = null;
         this.wasd = {};
-
-        this.websocket = new Websocket(this.handleMessage.bind(this));
+        this.players = {};
     }
 
     preload() {
         this.load.image('dirtTile', dirtTileImg);
         this.load.image('grassTile', grassTileImg);
         this.load.image('background', backgroundImg);
-        this.load.image('player', playerImg);
+        //this.load.image('player', playerImg);
+
+        this.load.atlas('player', animationPng, animationJson);
     }
 
     create() {
-        this.background = new Background(this, 0, 0, 0, 0, 'background');
+        this.background = new Background(this, 0, 0, 0, 0, 'background').setDepth(-100);
         this.player = new Player(this, 100, 650, 'player');
+        this.terrain = new Terrain(this.physics.world, this);
 
         this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
         this.add.existing(this.background);
-        this.add.existing(this.player);
-        this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
+
+        this.physics.add.collider(this.terrain, this.player);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
+
+        //this.inputKeys = [
+        //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+        //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
+        //];
+
+        // Wait with this until the end so we have everything else ready before we receive messages here
+        this.websocket = new Websocket(this.handleMessage.bind(this));
     }
 
     update() {
@@ -47,50 +62,53 @@ class Game extends Phaser.Scene {
     }
 
     handlePlayerMove() {
-        let moved = false;
+        var velocity = { dx: 0, dy : 0 };
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
-            this.player.body.setVelocityX(-300);
-            moved = true;
+            velocity.dx = -300;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-            this.player.body.setVelocityX(300);
-            moved = true;
+            velocity.dx = 300;
         } else {
-            this.player.body.setVelocityX(0);
+            velocity.dx = 0;
         }
 
-        if (this.cursors.down.isDown || this.wasd.S.isDown) {
-            this.player.body.setVelocityY(300);
-            moved = true;
-        } else if (this.cursors.up.isDown || this.wasd.W.isDown) {
-            this.player.body.setVelocityY(-300);
-            moved = true;
-        } else {
-            this.player.body.setVelocityY(0);
+        if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
+            velocity.dy = -400;
         }
-        if (moved) {
-            this.websocket.playerMoveSend(this.player.x, this.player.y, this.player.body.velocity.x, this.player.body.velocity.y);
+
+        this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);
+
+        // Only send if we're actually moving or just stopped
+        if (velocity.dx != 0 || velocity.dy != 0
+            || Phaser.Input.Keyboard.JustUp(this.wasd.A) || Phaser.Input.Keyboard.JustUp(this.wasd.D)) {
+            this.websocket.playerMoveSend(this.player.x, this.player.y,
+                this.player.body.velocity.x, this.player.body.velocity.y);
         }
     }
 
     handleMessage(msg) {
-        console.log('handle message executed');
         if (msg.hasJoin()) {
-            console.log('player joined');
             this.joinRecieve(msg.getPlayerId());
         } else if (msg.hasMove()) {
             const move = msg.getMove();
             this.playerMoveRecieve(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
+        } else if (msg.hasLeave()) {
+            this.leaveReceive(msg.getPlayerId());
         }
     }
 
     playerMoveRecieve(player_id, x, y, dx, dy) {
-        console.log(player_id, x, y);
-
+        this.players[player_id].move(x, y, dx, dy);
     }
 
     joinRecieve(player_id) {
-        console.log(player_id);
+        const player = new Player(this, 100, 650, 'player');
+        this.players[player_id] = player;
+        this.physics.add.collider(this.terrain, player);
+    }
 
+    leaveReceive(player_id) {
+        this.players[player_id].destroy();
+        delete this.players[player_id];
     }
 }
 
@@ -106,8 +124,8 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 250 },
-            debug: false
+            gravity: { y: 420 },
+            debug: true
         }
     },
     scene: Game,
