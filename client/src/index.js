@@ -94,23 +94,23 @@ class Game extends Phaser.Scene {
     handleLeaderboard() {
         let keys = Object.keys(this.players);
         let topclient = this.player;
-        let ppl = "You: ";
+        let ppl = 'You: ';
         keys.forEach(key => {
             let client = this.players[key];
             if (topclient.x < client.x) {
                 topclient = client;
                 if (topclient == this.player) {
-                    ppl = "You: "
+                    ppl = 'You: ';
                 } else {
-                    ppl = "Not you: "
+                    ppl = 'Not you: ';
                 }
             }
         });
         this.leaderboard.x = this.player.x - 400;
         this.leaderboard.y = this.player.y - 500;
-        this.leaderboard.text = "Leaderboard: \n" + ppl + topclient.x.toString();
+        this.leaderboard.text = 'Leaderboard: \n' + ppl + topclient.x.toString();
         if (this.won == false && topclient.x > 4200) {
-            this.leaderboard.text = "Victory! Congratulations to " + ppl;
+            this.leaderboard.text = 'Victory! Congratulations to ' + ppl;
             this.leaderboard.setFontSize(50);
         }
     }
