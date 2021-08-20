@@ -125,7 +125,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 420 },
-            debug: true
+            //debug: true
         }
     },
     antialias: false,
