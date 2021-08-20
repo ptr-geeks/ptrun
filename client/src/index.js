@@ -22,6 +22,24 @@ class Game extends Phaser.Scene {
         this.player = null;
         this.wasd = {};
         this.players = {};
+
+        this.hacks = false;
+        this.speed = 500;
+
+        window.gGame = this;
+
+        document.addEventListener('wheel', event => {
+            this.speed = Math.min(2000, Math.max(0, this.speed - event.deltaY * 0.1));
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'h') {
+                this.hacks = !this.hacks;
+
+                this.physics.world.gravity.y = this.hacks ? 0 : 420;
+                this.collider.active = !this.hacks;
+            }
+        });
     }
 
     preload() {
@@ -41,7 +59,7 @@ class Game extends Phaser.Scene {
         this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
         this.add.existing(this.background);
 
-        this.physics.add.collider(this.terrain, this.player);
+        this.collider = this.physics.add.collider(this.terrain, this.player);
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
@@ -61,17 +79,27 @@ class Game extends Phaser.Scene {
     }
 
     handlePlayerMove() {
-        var velocity = { dx: 0, dy : 0 };
+        const velocity = { dx: 0, dy: 0 };
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
-            velocity.dx = -300;
+            velocity.dx = -this.speed;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-            velocity.dx = 300;
+            velocity.dx = this.speed;
         } else {
             velocity.dx = 0;
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
-            velocity.dy = -400;
+        if (this.hacks) {
+            if (this.cursors.up.isDown || this.wasd.W.isDown) {
+                velocity.dy = -this.speed;
+            } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
+                velocity.dy = this.speed;
+            } else {
+                velocity.dy = 0;
+            }
+        } else {
+            if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.wasd.W)) && this.player.body.velocity.y == 0) {
+                velocity.dy = -400;
+            }
         }
 
         this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);

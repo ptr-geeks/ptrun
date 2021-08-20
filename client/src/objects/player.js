@@ -33,7 +33,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setPosition(x, y);
         this.setVelocityX(dx);
 
-        if (dy != 0) {
+        if (this.scene.hacks || dy !== 0) {
             this.setVelocityY(dy);
         }
 
