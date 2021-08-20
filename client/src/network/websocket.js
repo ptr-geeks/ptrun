@@ -5,7 +5,9 @@ export class Websocket {
         this.receiveCallback = receiveCallback;
 
         // Create WebSocket connection.
-        this.socket = new WebSocket('ws://localhost:8080/ws');
+        //this.socket = new WebSocket('ws://localhost:8080/ws');
+        this.socket = new WebSocket('wss://ptrun-server.develop.cloud.ptr.si/ws');
+        this.socket.binaryType = 'arraybuffer';
 
         // Connection opened
         this.socket.addEventListener('open', (event) => {
@@ -24,10 +26,9 @@ export class Websocket {
                 !event.data) {
                 return;
             }
-            event.data.arrayBuffer().then(data => {
-                var message = messages.Message.deserializeBinary(data);
-                this.receiveCallback(message);
-            });
+
+            const message = messages.Message.deserializeBinary(new Uint8Array(event.data));
+            this.receiveCallback(message);
         });
 
     }
