@@ -6,6 +6,7 @@ import dirtTileImg from './assets/dirtTile.jpg';
 import backgroundImg from './assets/oblakiBG.jpg';
 import { Player } from './objects/player';
 import playerImg from './assets/player_image.png';
+import { Background } from './objects/background';
 
 import { Websocket } from './network/websocket';
 
@@ -17,7 +18,7 @@ class Game extends Phaser.Scene {
         this.player = null;
         this.wasd = {};
 
-        this.websocket = new Websocket();
+        this.websocket = new Websocket(this.handleMessage.bind(this));
     }
 
     preload() {
@@ -28,37 +29,68 @@ class Game extends Phaser.Scene {
     }
 
     create() {
-        this.bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setScale(4);
+        this.background = new Background(this, 0, 0, 0, 0, 'background');
         this.player = new Player(this, 100, 650, 'player');
-        this.add.existing(this.player);
-        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
-        this.bg.setScrollFactor(0);
-        this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
 
+        this.cameras.main.startFollow(this.player, false, 1, 1, -350, 200);
+        this.add.existing(this.background);
+        this.add.existing(this.player);
+        this.add.existing(new Terrain(this, 0, 0, 'grassTile', 'dirtTile', this.player));
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
-
-
     }
+
     update() {
         this.handlePlayerMove();
+        this.background.update();
     }
 
-
     handlePlayerMove() {
-        this.player.body.setVelocity(0);
-
+        let moved = false;
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
             this.player.body.setVelocityX(-300);
+            moved = true;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
             this.player.body.setVelocityX(300);
+            moved = true;
+        } else {
+            this.player.body.setVelocityX(0);
         }
+
         if (this.cursors.down.isDown || this.wasd.S.isDown) {
             this.player.body.setVelocityY(300);
+            moved = true;
         } else if (this.cursors.up.isDown || this.wasd.W.isDown) {
             this.player.body.setVelocityY(-300);
+            moved = true;
+        } else {
+            this.player.body.setVelocityY(0);
         }
+        if (moved) {
+            this.websocket.playerMoveSend(this.player.x, this.player.y, this.player.body.velocity.x, this.player.body.velocity.y);
+        }
+    }
+
+    handleMessage(msg) {
+        console.log('handle message executed');
+        if (msg.hasJoin()) {
+            console.log('player joined');
+            this.joinRecieve(msg.getPlayerId());
+        } else if (msg.hasMove()) {
+            const move = msg.getMove();
+            this.playerMoveRecieve(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
+        }
+    }
+
+    playerMoveRecieve(player_id, x, y, dx, dy) {
+        console.log(player_id, x, y);
+
+    }
+
+    joinRecieve(player_id) {
+        console.log(player_id);
+
     }
 }
 
