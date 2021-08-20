@@ -8,7 +8,7 @@ export class Background extends Phaser.GameObjects.TileSprite {
         this.setScale(4);
     }
 
-    update() {
+    update(args) {
         this.setTilePosition(this.scene.cameras.main.scrollX * 0.05);
     }
 }

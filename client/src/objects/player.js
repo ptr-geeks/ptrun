@@ -8,7 +8,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.add.existing(this);
 
         // Random color
-        var color = new Phaser.Display.Color();
+        const color = new Phaser.Display.Color();
         color.random(50, 200);
         this.setTint(color.color);
 
@@ -27,13 +27,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             frameRate: 15,
             repeat: -1,
         });
+
+        this.hacks = false;
     }
 
     move(x, y, dx, dy) {
         this.setPosition(x, y);
         this.setVelocityX(dx);
 
-        if (dy != 0) {
+        if (dy !== 0 || this.hacks) {
             this.setVelocityY(dy);
         }
 
@@ -45,11 +47,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.body.setOffset(500, 280);
         }
 
-        if (!this.anims?.isPlaying && dx != 0) {
+        if (!this.anims?.isPlaying && dx !== 0) {
             this.play({ key: 'run' });
         }
 
-        if (dx == 0 || !this.body.touching.down) {
+        if (dx === 0 || !this.body.touching.down) {
             this.anims.stop();
         }
     }

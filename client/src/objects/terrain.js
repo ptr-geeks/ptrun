@@ -29,8 +29,8 @@ export class Terrain extends Phaser.Physics.Arcade.StaticGroup {
                     continue;
                 }
 
-                var texture = grid[i][j] === 1 ? 'grassTile' : 'dirtTile';
-                var tile = new Phaser.Physics.Arcade.Sprite(scene, j * tileSize, i * tileSize, texture);
+                const texture = grid[i][j] === 1 ? 'grassTile' : 'dirtTile';
+                const tile = new Phaser.Physics.Arcade.Sprite(scene, j * tileSize, i * tileSize, texture);
                 tile.setDisplaySize(tileSize, tileSize)
                     .setOrigin(0, 0);
 

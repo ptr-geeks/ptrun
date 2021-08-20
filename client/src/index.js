@@ -16,22 +16,20 @@ import animationPng from './assets/player/animation_white.png';
 import animationJson from './assets/player/animation.json';
 
 class Game extends Phaser.Scene {
-    constructor() {
-        super();
+    constructor(config) {
+        super(config);
 
         this.cursors = {};
         this.player = null;
         this.wasd = {};
         this.players = {};
         this.hacks = false;
-        this.h_pressed = false;
     }
 
     preload() {
         this.load.image('dirtTile', dirtTileImg);
         this.load.image('grassTile', grassTileImg);
         this.load.image('background', backgroundImg);
-        //this.load.image('player', playerImg);
 
         this.load.atlas('player', animationPng, animationJson);
     }
@@ -41,7 +39,7 @@ class Game extends Phaser.Scene {
         this.player = new Player(this, 100, 600, 'player');
         this.terrain = new Terrain(this.physics.world, this);
 
-        this.hacks_text = this.add.text(0, 0, 'Hacks: OFF', {fontSize: 50});
+        this.hacks_text = this.add.text(0, 0, 'Hacks: OFF', { fontSize: 32 });
         this.hacks_text.setScrollFactor(0);
 
         this.cameras.main.startFollow(this.player, false, 1, 1, 0, 0);
@@ -53,22 +51,17 @@ class Game extends Phaser.Scene {
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
         this.h_key = this.input.keyboard.addKeys('H');
 
-        //this.inputKeys = [
-        //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-        //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
-        //];
-
         // Wait with this until the end so we have everything else ready before we receive messages here
         this.websocket = new Websocket(this.handleMessage.bind(this));
     }
 
-    update() {
+    update(time, delta) {
         this.handlePlayerMove();
         this.background.update();
     }
 
     handlePlayerMove() {
-        var velocity = { dx: 0, dy: 0 };
+        const velocity = { dx: 0, dy: 0 };
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
             velocity.dx = this.hacks ? -900 : -300;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
@@ -79,34 +72,31 @@ class Game extends Phaser.Scene {
 
         if (this.hacks) {
             if (this.cursors.up.isDown || this.wasd.W.isDown) {
-                velocity.dy = -900;
+                velocity.dy = -300;
             } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
-                velocity.dy = 900;
+                velocity.dy = 300;
             } else {
                 velocity.dy = 0;
             }
         } else {
-            if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
+            if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y === 0) {
                 velocity.dy = -400;
             }
         }
 
-        if (this.h_key.H.isDown && !this.h_pressed) {
-            this.h_pressed = true;
+        if (Phaser.Input.Keyboard.JustDown(this.h_key.H)) {
             this.hacks = !this.hacks;
+            this.player.hacks = this.hacks;
             this.physics.world.gravity.y = this.hacks ? 0 : 420;
             this.hacks_text.setText(this.hacks ? 'Hacks: ON' : 'Hacks: OFF');
-        }
-
-        if (this.h_key.H.isUp) {
-            this.h_pressed = false;
         }
 
         this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);
 
         // Only send if we're actually moving or just stopped
-        if (velocity.dx != 0 || velocity.dy != 0
-            || Phaser.Input.Keyboard.JustUp(this.wasd.A) || Phaser.Input.Keyboard.JustUp(this.wasd.D)) {
+        if (velocity.dx !== 0 || velocity.dy !== 0
+            || Phaser.Input.Keyboard.JustUp(this.wasd.A) || Phaser.Input.Keyboard.JustUp(this.wasd.D)
+        || (this.hacks && (Phaser.Input.Keyboard.JustUp(this.wasd.W) || Phaser.Input.Keyboard.JustUp(this.wasd.S)))) {
             this.websocket.playerMoveSend(this.player.x, this.player.y,
                 this.player.body.velocity.x, this.player.body.velocity.y);
         }
@@ -114,20 +104,20 @@ class Game extends Phaser.Scene {
 
     handleMessage(msg) {
         if (msg.hasJoin()) {
-            this.joinRecieve(msg.getPlayerId());
+            this.joinReceive(msg.getPlayerId());
         } else if (msg.hasMove()) {
             const move = msg.getMove();
-            this.playerMoveRecieve(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
+            this.playerMoveReceive(msg.getPlayerId(), move.getX(), move.getY(), move.getDx(), move.getDy());
         } else if (msg.hasLeave()) {
             this.leaveReceive(msg.getPlayerId());
         }
     }
 
-    playerMoveRecieve(player_id, x, y, dx, dy) {
+    playerMoveReceive(player_id, x, y, dx, dy) {
         this.players[player_id].move(x, y, dx, dy);
     }
 
-    joinRecieve(player_id) {
+    joinReceive(player_id) {
         const player = new Player(this, 100, 650, 'player');
         this.players[player_id] = player;
         this.physics.add.collider(this.terrain, player);
