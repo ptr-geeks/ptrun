@@ -16,13 +16,14 @@ export class Websocket {
             this.sendMessage(message);
         });
 
+
+
         // Listen for messages
         this.socket.addEventListener('message', (event) => {
             if (this.receiveCallback == null ||
                 !event.data) {
                 return;
             }
-
             event.data.arrayBuffer().then(data => {
                 var message = messages.Message.deserializeBinary(data);
                 this.receiveCallback(message);
@@ -34,5 +35,16 @@ export class Websocket {
     sendMessage(message) {
         var bytes = message.serializeBinary();
         this.socket.send(bytes);
+    }
+
+    playerMoveSend(x, y, dx, dy) {
+        var message = new messages.Message();
+        var move = new messages.Move();
+        message.setMove(move);
+        move.setX(x);
+        move.setY(y);
+        move.setDx(dx);
+        move.setDy(dy);
+        this.sendMessage(message);
     }
 }
