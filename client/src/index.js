@@ -92,6 +92,7 @@ class Game extends Phaser.Scene {
     }
 
     handleLeaderboard() {
+        this.leaderboard.setFontSize(16);
         let keys = Object.keys(this.players);
         let topclient = this.player;
         let ppl = 'You: ';
@@ -109,9 +110,11 @@ class Game extends Phaser.Scene {
         this.leaderboard.x = this.player.x - 400;
         this.leaderboard.y = this.player.y - 500;
         this.leaderboard.text = 'Leaderboard: \n' + ppl + topclient.x.toString();
+        this.leaderboard.setColor("#000000");
         if (this.won == false && topclient.x > 4000) {
             this.leaderboard.text = 'Victory! Congratulations to ' + ppl;
             this.leaderboard.setFontSize(50);
+            this.won == true;
         }
     }
 
