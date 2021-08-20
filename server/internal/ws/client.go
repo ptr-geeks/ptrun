@@ -20,9 +20,10 @@ const (
 )
 
 type clientImpl struct {
-	id   int32
-	addr net.Addr
-	conn *websocket.Conn
+	id       int32
+	nickname string
+	addr     net.Addr
+	conn     *websocket.Conn
 
 	logger *zap.SugaredLogger
 
@@ -36,11 +37,13 @@ type clientImpl struct {
 func NewClient(conn *websocket.Conn, serv Server, logger *zap.Logger) Client {
 	return &clientImpl{
 		// Just randomly generate
-		id:     rand.Int31(),
-		addr:   conn.RemoteAddr(),
-		conn:   conn,
-		logger: logger.Sugar(),
-		server: serv,
+		id: rand.Int31(),
+		// Empty nickname, it is set by client on join
+		nickname: "",
+		addr:     conn.RemoteAddr(),
+		conn:     conn,
+		logger:   logger.Sugar(),
+		server:   serv,
 
 		send: make(chan *messages.Message),
 	}
@@ -54,6 +57,15 @@ func (c *clientImpl) GetID() int32 {
 //retruns remote addres of the client
 func (c *clientImpl) GetRemoteAddr() net.Addr {
 	return c.addr
+}
+
+func (c *clientImpl) GetNickname() string {
+	return c.nickname
+}
+
+func (c *clientImpl) SetNickname(nickname string) {
+	// TODO: Validate nickname
+	c.nickname = nickname
 }
 
 //closes the client

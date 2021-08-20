@@ -3,9 +3,11 @@ syntax = "proto3";
 option go_package = "./server/internal/messages";
 
 message Join {
-    string username = 1;
+    string nickname = 1;
     optional bool success = 2;
 }
+
+message Leave {}
 
 message Move {
     float x = 1;
@@ -14,14 +16,17 @@ message Move {
     float dy = 4;
 }
 
-message Leave {}
+message ChangeName {
+    string nickname = 1;
+}
 
 message Message {
     optional string server = 1;
     optional int32 player_id = 2;
     oneof data {
         Join join = 4;
-        Move move = 5;
-        Leave leave = 6;
+        Leave leave = 5;
+        Move move = 6;
+        ChangeName change_name = 7;
     }
 }

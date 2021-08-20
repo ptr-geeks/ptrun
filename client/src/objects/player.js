@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture) {
+    constructor(scene, x, y, texture, isMain = false) {
         super(scene, x, y, texture);
 
         this.scene.physics.world.enable(this);
@@ -27,6 +27,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             frameRate: 15,
             repeat: -1,
         });
+
+        if (isMain) this.listenForNameChange();
     }
 
     move(x, y, dx, dy) {
@@ -53,5 +55,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.anims.stop();
         }
     }
-}
 
+    listenForNameChange() {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'n') {
+                const name = prompt('Enter name');
+                this.scene.websocket.playerNameSend(name);
+            }
+        });
+    }
+}
