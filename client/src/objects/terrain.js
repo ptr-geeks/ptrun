@@ -1,12 +1,11 @@
 import Phaser from 'phaser';
 
-export class Terrain extends Phaser.GameObjects.Sprite {
-    constructor(scene, x, y, grassTile, dirtTile, player) {
-        super(scene, x, y);
-
-        const tileSize = 64;
-        let collider;
-        let tile;
+export class Terrain extends Phaser.Physics.Arcade.StaticGroup {
+    constructor(world, scene) {
+        super(world, scene, [], {
+            allowGravity: false,
+            immovable: true
+        });
 
         const grid = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -22,21 +21,23 @@ export class Terrain extends Phaser.GameObjects.Sprite {
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
         ];
 
+        const tileSize = 70;
+
         for (let i = 0; i < grid.length; i++) {
             for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] !== 0) {
-                    let tile_type;
-                    if (grid[i][j] === 1) {
-                        tile_type = grassTile;
-                    } else if (grid[i][j] === 2) {
-                        tile_type = dirtTile;
-                    }
-                    tile = scene.physics.add.sprite(j * tileSize, i * tileSize, tile_type).setDisplaySize(tileSize, tileSize).setOrigin(0, 0);
-                    collider = scene.physics.add.collider(player, tile);
-                    tile.setImmovable(true);
-                    tile.body.allowGravity = false;
+                if (grid[i][j] === 0) {
+                    continue;
                 }
+
+                var texture = grid[i][j] === 1 ? 'grassTile' : 'dirtTile';
+                var tile = new Phaser.Physics.Arcade.Sprite(scene, j * tileSize, i * tileSize, texture);
+                tile.setDisplaySize(tileSize, tileSize)
+                    .setOrigin(0, 0);
+
+                this.add(tile, true);
             }
         }
+
+        this.refresh();
     }
 }
