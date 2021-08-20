@@ -1,4 +1,4 @@
-import messages from '../messages_pb';
+import messages from '../messages_pb.js';
 
 export class Websocket {
     constructor(receiveCallback) {
