@@ -12,7 +12,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         color.random(50, 200);
         this.setTint(color.color);
 
-        //this.setScale(0.03);
         this.setDepth(50);
         this.setScale(0.15);
         this.body
