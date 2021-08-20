@@ -64,24 +64,16 @@ class Game extends Phaser.Scene {
     handlePlayerMove() {
         var velocity = { dx: 0, dy : 0 };
         if (this.cursors.left.isDown || this.wasd.A.isDown) {
-            velocity.dx = -900;
+            velocity.dx = -300;
         } else if (this.cursors.right.isDown || this.wasd.D.isDown) {
-            velocity.dx = 900;
+            velocity.dx = 300;
         } else {
             velocity.dx = 0;
         }
 
-        if (this.cursors.up.isDown || this.wasd.W.isDown) {
-            velocity.dy = -900;
-        } else if (this.cursors.down.isDown || this.wasd.S.isDown) {
-            velocity.dy = 900;
-        } else {
-            velocity.dy = 0;
-        }
-
-        /*if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
+        if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
             velocity.dy = -400;
-        }*/
+        }
 
         this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);
 
@@ -132,7 +124,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            //gravity: { y: 420 },
+            gravity: { y: 420 },
             //debug: true
         }
     },
