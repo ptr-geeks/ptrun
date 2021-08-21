@@ -8,6 +8,7 @@ import (
 
 	"github.com/ptr-geeks/ptrun/server/internal/consts"
 	"github.com/ptr-geeks/ptrun/server/internal/events"
+	"github.com/ptr-geeks/ptrun/server/internal/game"
 	"github.com/ptr-geeks/ptrun/server/internal/messages"
 )
 
@@ -62,6 +63,10 @@ func NewServer(logger *zap.Logger) Server {
 func (s *serverImpl) Run() {
 	s.logger.Debug("server started and listening for events")
 	s.handleBroadcast()
+
+	gameLogic := game.GameLogic{Logger: s.logger}
+	gameLogic.Subscribe()
+
 	for {
 		select {
 		case connect := <-s.connect:
