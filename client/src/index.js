@@ -45,6 +45,10 @@ class Game extends Phaser.Scene {
 
         this.cursors = this.input.keyboard.createCursorKeys();
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
+        this.won = false;
+
+        this.leaderboard = this.add.text(0, 0, 'Leaderboard: \nLoading... Please wait!',);
+        this.handleLeaderboard();
 
         //this.inputKeys = [
         //	this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
@@ -70,9 +74,11 @@ class Game extends Phaser.Scene {
             velocity.dx = 0;
         }
 
-        if (Phaser.Input.Keyboard.JustDown(this.wasd.W) && this.player.body.velocity.y == 0) {
+        if ((Phaser.Input.Keyboard.JustDown(this.wasd.W) || this.cursors.up.isDown || this.cursors.space.isDown) && this.player.body.velocity.y == 0) {
             velocity.dy = -400;
-        }
+        } //else if ((Phaser.Input.Keyboard.JustDown(this.wasd.S) || this.cursors.down.isDown) && this.player.body.velocity.y == 0) {
+        //    velocity.dy = 400;
+        //}
 
         this.player.move(this.player.x, this.player.y, velocity.dx, velocity.dy);
 
@@ -81,6 +87,36 @@ class Game extends Phaser.Scene {
             || Phaser.Input.Keyboard.JustUp(this.wasd.A) || Phaser.Input.Keyboard.JustUp(this.wasd.D)) {
             this.websocket.playerMoveSend(this.player.x, this.player.y,
                 this.player.body.velocity.x, this.player.body.velocity.y);
+        }
+        this.handleLeaderboard();
+    }
+
+    handleLeaderboard() {
+        if (this.won == false) {
+            this.leaderboard.setFontSize(16);
+            let keys = Object.keys(this.players);
+            let topclient = this.player;
+            let ppl = 'You: ';
+            keys.forEach(key => {
+                let client = this.players[key];
+                if (topclient.x < client.x) {
+                    topclient = client;
+                    if (topclient == this.player) {
+                        ppl = 'You: ';
+                    } else {
+                        ppl = 'Not you: ';
+                    }
+                }
+            });
+            this.leaderboard.x = this.player.x - 400;
+            this.leaderboard.y = this.player.y - 500;
+            this.leaderboard.text = 'Leaderboard: \n' + ppl + topclient.x.toString();
+            this.leaderboard.setColor('#000000');
+            if (topclient.x > 4000) {
+                this.leaderboard.text = 'Victory! Congratulations to ' + ppl;
+                this.leaderboard.setFontSize(50);
+                this.won = true;
+            }
         }
     }
 
@@ -93,6 +129,7 @@ class Game extends Phaser.Scene {
         } else if (msg.hasLeave()) {
             this.leaveReceive(msg.getPlayerId());
         }
+        this.handleLeaderboard();
     }
 
     playerMoveRecieve(player_id, x, y, dx, dy) {
