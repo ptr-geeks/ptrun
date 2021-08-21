@@ -1,0 +1,58 @@
+{{- if .Values.server.ingress.enabled -}}
+{{- $serviceName := (include "ptrun.fullname" .) -}}
+{{- $servicePort := .Values.server.service.port -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    {{- include "ptrun.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  rules:
+    - host: {{ .Values.server.service.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
+  tls:
+    - secretName: ptrun-tls #Vprasaj za secret name
+      hosts:
+      - {{ .Values.service.service.ingress.host }}
+{{- end -}}    
+  
+---
+{{- if .Values.client.ingress.enabled -}}
+{{- $serviceName := (include "ptrun.fullname" .) -}}
+{{- $servicePort := .Values.client.service.port -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    {{- include "ptrun.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  rules:
+    - host: {{ .Values.client.service.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
+  tls:
+    - secretName: ptrun-tls #Vprasaj za secret name
+      hosts:
+        - {{ .Values.client.service.ingress.host }}
+{{- end -}}    
