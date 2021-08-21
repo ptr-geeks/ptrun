@@ -3,18 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/spf13/cobra"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
 
 	"github.com/ptr-geeks/ptrun/server/internal/ws"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
@@ -27,6 +31,13 @@ type ServerConfig struct {
 	Port  string
 	Path  string
 }
+
+var (
+	state = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "ptrun_state",
+		Help: "State",
+	})
+)
 
 func main() {
 	config := ServerConfig{}
@@ -66,18 +77,26 @@ func run(config *ServerConfig) {
 
 	sugared := logger.Sugar()
 
+	state.Set(0)
+
+	mux := goji.NewMux()
+	mux.HandleFunc(pat.Get("/ws"), func(w http.ResponseWriter, r *http.Request) {
+		server.Connect(w, r)
+	})
+	mux.HandleFunc(pat.Get("/metrics"), func(w http.ResponseWriter, r *http.Request) {
+		prometheus := promhttp.Handler()
+		prometheus.ServeHTTP(w, r)
+	})
+
 	server = ws.NewServer(logger)
 	go server.Run()
 
+	// TODO: We should allow some overrides by passing parameters to our executable
+	// Example: ./ptr-server --port 8080 --path "/ws"
 	sugared.Infow("starting websocket endpoint",
 		"host", config.Host,
 		"port", config.Port,
 		"path", config.Path)
-
-	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get(config.Path), func(w http.ResponseWriter, r *http.Request) {
-		server.Connect(w, r)
-	})
 
 	srv := &http.Server{
 		Handler: mux,
@@ -90,9 +109,11 @@ func run(config *ServerConfig) {
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	state.Set(1)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			state.Set(2)
 			sugared.Errorw("error starting http server", zap.Error(err))
 		}
 	}()
