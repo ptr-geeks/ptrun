@@ -17,7 +17,8 @@ var (
 		WriteBufferSize: 1024,
 		// TODO: For now we don't really check origin
 		CheckOrigin: func(r *http.Request) bool {
-			return true
+			origin := r.Header.Get("Origin")
+			return origin == "https://ptrun.develop.cloud.ptr.si"
 		},
 	}
 )
